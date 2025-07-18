@@ -78,10 +78,23 @@ func runListCommand() error {
 			}
 		}
 
-		// TODO: Parse VSCode launch configurations
+		// Parse VSCode launch configurations
 		if launchPath := detector.GetVSCodeLaunchPath(); launchPath != "" {
 			if verbose {
-				fmt.Printf("🚀 VSCode launch.json found at: %s (parsing not yet implemented)\n", launchPath)
+				fmt.Printf("🚀 Parsing VSCode launch configs from: %s\n", launchPath)
+			}
+
+			launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+			launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
+			if err != nil {
+				if verbose {
+					fmt.Printf("⚠️  Warning: failed to parse VSCode launch configs: %v\n", err)
+				}
+			} else {
+				allTasks = append(allTasks, launchTasks...)
+				if verbose {
+					fmt.Printf("✅ Found %d VSCode launch configurations\n", len(launchTasks))
+				}
 			}
 		}
 	}
@@ -144,11 +157,22 @@ func displayTasksText(tasks []*config.Task) error {
 		fmt.Println()
 	}
 
-	// Display VSCode launch configs (when implemented)
+	// Display VSCode launch configs
 	if vscLaunches := tasksByType[config.TypeVSCodeLaunch]; len(vscLaunches) > 0 {
 		fmt.Printf("🚀 VSCode Launch Configurations (%d):\n", len(vscLaunches))
 		for _, task := range vscLaunches {
-			fmt.Printf("  • %s - %s %v\n", task.Name, task.Command, task.Args)
+			fmt.Printf("  • %s", task.Name)
+			if task.Group != "" {
+				fmt.Printf(" [%s]", task.Group)
+			}
+			fmt.Printf(" - %s", task.Command)
+			if len(task.Args) > 0 {
+				fmt.Printf(" %v", task.Args)
+			}
+			fmt.Println()
+			if task.Description != "" {
+				fmt.Printf("    %s\n", task.Description)
+			}
 		}
 		fmt.Println()
 	}

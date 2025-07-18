@@ -77,10 +77,22 @@ func runTaskCommand(taskName string) error {
 			}
 		}
 
-		// TODO: Parse VSCode launch configurations
-		// if launchPath := detector.GetVSCodeLaunchPath(); launchPath != "" {
-		//     // Parse launch configs when implemented
-		// }
+		// Parse VSCode launch configurations
+		if launchPath := detector.GetVSCodeLaunchPath(); launchPath != "" {
+			if verbose {
+				fmt.Printf("🚀 Scanning VSCode launch configs from: %s\n", launchPath)
+			}
+
+			launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+			launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
+			if err != nil {
+				if verbose {
+					fmt.Printf("⚠️  Warning: failed to parse VSCode launch configs: %v\n", err)
+				}
+			} else {
+				allTasks = append(allTasks, launchTasks...)
+			}
+		}
 	}
 
 	// TODO: Parse JetBrains configurations
@@ -120,10 +132,74 @@ func runTaskCommand(taskName string) error {
 		fmt.Println()
 	}
 
-	// Execute the task
+	// Check for preLaunchTask if this is a launch configuration
+	if task.Type == config.TypeVSCodeLaunch {
+		if err := runPreLaunchTask(task, allTasks, projectConfig, detector, finder, verbose); err != nil {
+			return fmt.Errorf("preLaunchTask failed: %w", err)
+		}
+	}
+
+	// Execute the main task
 	taskRunner := runner.NewTaskRunner(verbose)
 	if err := taskRunner.RunTask(task); err != nil {
 		return fmt.Errorf("execution failed: %w", err)
+	}
+
+	return nil
+}
+
+// runPreLaunchTask executes a preLaunchTask if specified in a launch configuration
+func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector, finder *runner.TaskFinder, verbose bool) error {
+	// Only check VSCode launch configurations for preLaunchTask
+	if launchTask.Type != config.TypeVSCodeLaunch {
+		return nil
+	}
+
+	// Get the launch file path
+	launchPath := detector.GetVSCodeLaunchPath()
+	if launchPath == "" {
+		return nil // No launch.json file found
+	}
+
+	// Create launch parser to get preLaunchTask name
+	launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+	preLaunchTaskName, err := launchParser.GetPreLaunchTask(launchPath, launchTask.Name)
+	if err != nil {
+		if verbose {
+			fmt.Printf("⚠️  Warning: failed to get preLaunchTask for %s: %v\n", launchTask.Name, err)
+		}
+		return nil // Continue without preLaunchTask
+	}
+
+	// If no preLaunchTask specified, continue
+	if preLaunchTaskName == "" {
+		return nil
+	}
+
+	if verbose {
+		fmt.Printf("🔗 Launch configuration has preLaunchTask: %s\n", preLaunchTaskName)
+	}
+
+	// Find the preLaunchTask
+	preLaunchTask, err := finder.FindTask(preLaunchTaskName, allTasks)
+	if err != nil {
+		return fmt.Errorf("preLaunchTask '%s' not found: %w", preLaunchTaskName, err)
+	}
+
+	if verbose {
+		fmt.Printf("🔧 Executing preLaunchTask: %s (%s)\n", preLaunchTask.Name, preLaunchTask.Type)
+		fmt.Println()
+	}
+
+	// Execute the preLaunchTask
+	taskRunner := runner.NewTaskRunner(verbose)
+	if err := taskRunner.RunTask(preLaunchTask); err != nil {
+		return fmt.Errorf("preLaunchTask '%s' execution failed: %w", preLaunchTaskName, err)
+	}
+
+	if verbose {
+		fmt.Printf("✅ PreLaunchTask '%s' completed successfully\n", preLaunchTaskName)
+		fmt.Println()
 	}
 
 	return nil
