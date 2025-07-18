@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "go",
+            "args": ["build", "-o", "bin/taskporter", "."],
+            "group": "build",
+            "detail": "Build the taskporter binary",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "install-deps",
+            "type": "shell",
+            "command": "npm",
+            "args": ["install"],
+            "group": "build",
+            "detail": "Install Node.js dependencies",
+            "options": {
+                "cwd": "${workspaceFolder}/examples/node-app"
+            }
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "go",
+            "args": ["test", "./..."],
+            "group": "test",
+            "detail": "Run all tests"
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "rm",
+            "args": ["-rf", "bin/"],
+            "group": "build",
+            "detail": "Clean build artifacts"
+        }
+    ]
+}

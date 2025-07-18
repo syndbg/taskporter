@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"taskporter/internal/config"
+	"taskporter/internal/parser/jetbrains"
 	"taskporter/internal/parser/vscode"
 
 	"github.com/spf13/cobra"
@@ -99,11 +100,37 @@ func runListCommand() error {
 		}
 	}
 
-	// TODO: Parse JetBrains configurations
+	// Parse JetBrains configurations
 	if projectConfig.HasJetBrains {
 		jetbrainsPaths := detector.GetJetBrainsRunConfigPaths()
 		if verbose && len(jetbrainsPaths) > 0 {
-			fmt.Printf("🧠 JetBrains configurations found: %d (parsing not yet implemented)\n", len(jetbrainsPaths))
+			fmt.Printf("🧠 Parsing JetBrains configurations from: %d files\n", len(jetbrainsPaths))
+		}
+
+		parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+		for _, configPath := range jetbrainsPaths {
+			if verbose {
+				fmt.Printf("   📄 %s\n", configPath)
+			}
+
+			task, err := parser.ParseRunConfiguration(configPath)
+			if err != nil {
+				if verbose {
+					fmt.Printf("⚠️  Warning: failed to parse JetBrains config %s: %v\n", configPath, err)
+				}
+			} else {
+				allTasks = append(allTasks, task)
+			}
+		}
+
+		if verbose && len(jetbrainsPaths) > 0 {
+			jetbrainsTaskCount := 0
+			for _, task := range allTasks {
+				if task.Type == config.TypeJetBrains {
+					jetbrainsTaskCount++
+				}
+			}
+			fmt.Printf("✅ Found %d JetBrains configurations\n", jetbrainsTaskCount)
 		}
 	}
 

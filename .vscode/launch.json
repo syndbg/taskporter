@@ -1,0 +1,77 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch taskporter",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["list", "--verbose"],
+            "env": {
+                "DEBUG": "true"
+            },
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Debug taskporter list",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "args": ["list"],
+            "env": {},
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug taskporter run",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "args": ["run", "test-task"],
+            "env": {
+                "VERBOSE": "1"
+            },
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Launch Node.js Example",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/node-app/index.js",
+            "args": ["--port", "3000"],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "cwd": "${workspaceFolder}/examples/node-app",
+            "console": "integratedTerminal",
+            "preLaunchTask": "install-deps"
+        },
+        {
+            "name": "Python Script Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/analyze.py",
+            "args": ["--input", "data.json"],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Attach to Process",
+            "type": "go",
+            "request": "attach",
+            "mode": "local",
+            "processId": 0
+        }
+    ]
+}

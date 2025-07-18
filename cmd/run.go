@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"taskporter/internal/config"
+	"taskporter/internal/parser/jetbrains"
 	"taskporter/internal/parser/vscode"
 	"taskporter/internal/runner"
 
@@ -95,10 +96,25 @@ func runTaskCommand(taskName string) error {
 		}
 	}
 
-	// TODO: Parse JetBrains configurations
-	// if projectConfig.HasJetBrains {
-	//     // Parse JetBrains configs when implemented
-	// }
+	// Parse JetBrains configurations
+	if projectConfig.HasJetBrains {
+		jetbrainsPaths := detector.GetJetBrainsRunConfigPaths()
+		if verbose && len(jetbrainsPaths) > 0 {
+			fmt.Printf("🧠 Scanning JetBrains configurations from: %d files\n", len(jetbrainsPaths))
+		}
+
+		parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+		for _, configPath := range jetbrainsPaths {
+			task, err := parser.ParseRunConfiguration(configPath)
+			if err != nil {
+				if verbose {
+					fmt.Printf("⚠️  Warning: failed to parse JetBrains config %s: %v\n", configPath, err)
+				}
+			} else {
+				allTasks = append(allTasks, task)
+			}
+		}
+	}
 
 	if len(allTasks) == 0 {
 		fmt.Println("❌ No tasks found in this project.")
