@@ -51,6 +51,5 @@ Thumbs.db
 .env.local
 .env.*.local
 
-
+# Binary executable
 taskporter
-taskporter*
