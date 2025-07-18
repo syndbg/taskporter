@@ -1,5 +1,5 @@
 <div align="center">
-  <img src=".github/taskporter-logo.svg" alt="Taskporter Logo" width="150"/>
+  <img src=".github/logo.png" alt="Taskporter Logo" width="150"/>
 
   # Taskporter
 
@@ -308,5 +308,5 @@ Taskporter draws inspiration from Death Stranding's theme of connection and brid
 <div align="center">
   <strong>🎯 Bridge your development workflow. Connect your tools. Deliver your code.</strong>
 
-  **Made with ❤️ and ☕ by the Taskporter community**
+  **Made with ❤️**
 </div>
