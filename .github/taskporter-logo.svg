@@ -1,0 +1,50 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gopher body -->
+  <ellipse cx="100" cy="120" rx="60" ry="50" fill="#7DD3FC" stroke="#1E293B" stroke-width="3"/>
+
+  <!-- Gopher head -->
+  <circle cx="100" cy="70" r="35" fill="#7DD3FC" stroke="#1E293B" stroke-width="3"/>
+
+  <!-- Ears -->
+  <ellipse cx="80" cy="45" rx="8" ry="12" fill="#7DD3FC" stroke="#1E293B" stroke-width="2"/>
+  <ellipse cx="120" cy="45" rx="8" ry="12" fill="#7DD3FC" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- Eyes -->
+  <circle cx="90" cy="65" r="8" fill="white" stroke="#1E293B" stroke-width="2"/>
+  <circle cx="110" cy="65" r="8" fill="white" stroke="#1E293B" stroke-width="2"/>
+  <circle cx="90" cy="65" r="4" fill="#1E293B"/>
+  <circle cx="110" cy="65" r="4" fill="#1E293B"/>
+
+  <!-- Nose -->
+  <ellipse cx="100" cy="75" rx="3" ry="2" fill="#64748B"/>
+
+  <!-- Mouth -->
+  <path d="M 95 80 Q 100 85 105 80" stroke="#1E293B" stroke-width="2" fill="none"/>
+
+  <!-- Arms -->
+  <ellipse cx="65" cy="110" rx="12" ry="20" fill="#7DD3FC" stroke="#1E293B" stroke-width="2"/>
+  <ellipse cx="135" cy="110" rx="12" ry="20" fill="#7DD3FC" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- Clipboard -->
+  <rect x="140" y="90" width="40" height="50" fill="white" stroke="#1E293B" stroke-width="2" rx="3"/>
+  <rect x="155" y="85" width="10" height="8" fill="#64748B" stroke="#1E293B" stroke-width="1" rx="2"/>
+
+  <!-- Checkmarks -->
+  <path d="M 145 100 L 148 103 L 152 99" stroke="#22C55E" stroke-width="2" fill="none"/>
+  <path d="M 145 110 L 148 113 L 152 109" stroke="#22C55E" stroke-width="2" fill="none"/>
+  <path d="M 145 120 L 148 123 L 152 119" stroke="#22C55E" stroke-width="2" fill="none"/>
+
+  <!-- IDE icons on clipboard -->
+  <rect x="158" y="98" width="12" height="8" fill="#007ACC" rx="1"/>
+  <text x="164" y="104" font-family="Arial" font-size="6" fill="white" text-anchor="middle">VS</text>
+
+  <rect x="158" y="108" width="12" height="8" fill="#000000" rx="1"/>
+  <text x="164" y="114" font-family="Arial" font-size="6" fill="white" text-anchor="middle">JB</text>
+
+  <rect x="158" y="118" width="12" height="8" fill="#3B82F6" rx="1"/>
+  <text x="164" y="124" font-family="Arial" font-size="6" fill="white" text-anchor="middle">{}</text>
+
+  <!-- Legs -->
+  <ellipse cx="85" cy="160" rx="10" ry="15" fill="#7DD3FC" stroke="#1E293B" stroke-width="2"/>
+  <ellipse cx="115" cy="160" rx="10" ry="15" fill="#7DD3FC" stroke="#1E293B" stroke-width="2"/>
+</svg>
