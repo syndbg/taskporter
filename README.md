@@ -5,9 +5,9 @@
 
   **Cross-Editor CLI Task Bridge** • *Inspired by Death Stranding*
 
-  [![CI](https://github.com/yourusername/taskporter/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/taskporter/actions)
-  [![Go Report Card](https://goreportcard.com/badge/github.com/yourusername/taskporter)](https://goreportcard.com/report/github.com/yourusername/taskporter)
-  [![Release](https://img.shields.io/github/release/yourusername/taskporter.svg)](https://github.com/yourusername/taskporter/releases)
+  [![CI](https://github.com/syndbg/taskporter/actions/workflows/ci.yml/badge.svg)](https://github.com/syndbg/taskporter/actions)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/syndbg/taskporter)](https://goreportcard.com/report/github.com/syndbg/taskporter)
+  [![Release](https://img.shields.io/github/release/syndbg/taskporter.svg)](https://github.com/syndbg/taskporter/releases)
 
   *A Golang-powered CLI tool that acts as a "porter" for project automation, bridging and running tasks from various code editors directly from the terminal.*
 </div>
@@ -54,15 +54,15 @@ taskporter list --json
 
 ### Using Go Install
 ```bash
-go install github.com/yourusername/taskporter@latest
+go install github.com/syndbg/taskporter@latest
 ```
 
 ### Download Binary
-Download the latest release for your platform from [GitHub Releases](https://github.com/yourusername/taskporter/releases).
+Download the latest release for your platform from [GitHub Releases](https://github.com/syndbg/taskporter/releases).
 
 ### Build from Source
 ```bash
-git clone https://github.com/yourusername/taskporter.git
+git clone https://github.com/syndbg/taskporter.git
 cd taskporter
 make build
 ```
