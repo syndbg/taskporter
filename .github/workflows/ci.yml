@@ -1,5 +1,4 @@
 name: CI/CD
-
 on:
   push:
     branches: [ main, develop ]
@@ -21,7 +20,7 @@ jobs:
         check-latest: true
 
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -41,13 +40,13 @@ jobs:
       run: go tool cover -html=coverage.out -o coverage.html
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.out
         fail_ci_if_error: false
 
     - name: Upload coverage artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: |
@@ -107,7 +106,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
 
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
