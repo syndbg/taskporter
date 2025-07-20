@@ -45,6 +45,9 @@ func setupCommands() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "text", "output format (text, json)")
 
 	// Setup commands directly
-	setupListCommand()
-	setupRunCommand()
+	rootCmd.AddCommand(listCmd)
+
+	// Setup run command and its flags
+	runCmd.Flags().BoolVar(&noInteractive, "no-interactive", false, "Disable interactive mode (useful for CI/CD)")
+	rootCmd.AddCommand(runCmd)
 }

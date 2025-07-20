@@ -227,8 +227,3 @@ func displayTasksJSON(tasks []*config.Task) error {
 	encoder.SetIndent("", "  ")
 	return encoder.Encode(output)
 }
-
-// setupListCommand configures the list command
-func setupListCommand() {
-	rootCmd.AddCommand(listCmd)
-}
