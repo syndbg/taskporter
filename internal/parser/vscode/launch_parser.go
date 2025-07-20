@@ -172,7 +172,7 @@ func (p *LaunchParser) handleGoLaunchConfig(vscodeConfig VSCodeLaunchConfig, tas
 		}
 
 	case "attach":
-		return fmt.Errorf("Go attach mode not yet supported")
+		return fmt.Errorf("go attach mode not yet supported")
 
 	default:
 		return fmt.Errorf("unsupported Go request type: %s", vscodeConfig.Request)
@@ -192,7 +192,7 @@ func (p *LaunchParser) handleNodeLaunchConfig(vscodeConfig VSCodeLaunchConfig, t
 			programPath := p.resolveWorkspacePath(vscodeConfig.Program)
 			task.Args = []string{programPath}
 		} else {
-			return fmt.Errorf("Node.js launch config requires program path")
+			return fmt.Errorf("node.js launch config requires program path")
 		}
 
 		// Add arguments
@@ -201,7 +201,7 @@ func (p *LaunchParser) handleNodeLaunchConfig(vscodeConfig VSCodeLaunchConfig, t
 		}
 
 	case "attach":
-		return fmt.Errorf("Node.js attach mode not yet supported")
+		return fmt.Errorf("node.js attach mode not yet supported")
 
 	default:
 		return fmt.Errorf("unsupported Node.js request type: %s", vscodeConfig.Request)
@@ -221,7 +221,7 @@ func (p *LaunchParser) handlePythonLaunchConfig(vscodeConfig VSCodeLaunchConfig,
 			programPath := p.resolveWorkspacePath(vscodeConfig.Program)
 			task.Args = []string{programPath}
 		} else {
-			return fmt.Errorf("Python launch config requires program path")
+			return fmt.Errorf("python launch config requires program path")
 		}
 
 		// Add arguments
@@ -230,7 +230,7 @@ func (p *LaunchParser) handlePythonLaunchConfig(vscodeConfig VSCodeLaunchConfig,
 		}
 
 	case "attach":
-		return fmt.Errorf("Python attach mode not yet supported")
+		return fmt.Errorf("python attach mode not yet supported")
 
 	default:
 		return fmt.Errorf("unsupported Python request type: %s", vscodeConfig.Request)
