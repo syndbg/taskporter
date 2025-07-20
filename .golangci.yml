@@ -6,21 +6,9 @@ run:
 
 linters:
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
-    - gofmt
-    - goimports
-    - misspell
-    - revive
-    - unconvert
-    - gocyclo
-    - gofumpt
-    - goconst
-    - godot
-    - exportloopref
-    - whitespace
-    - gosec
+    - wsl_v5
+  settings:
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
