@@ -77,11 +77,10 @@ Expand-Archive taskporter.zip
 ### 🐳 Docker
 ```bash
 # Pull and run
-docker pull ghcr.io/syndbg/taskporter:latest
-docker run --rm -v $(pwd):/workspace -w /workspace ghcr.io/syndbg/taskporter list
+docker run -ti --rm -v $(pwd):/workspace -w /workspace ghcr.io/syndbg/taskporter list
 
 # Create an alias for easy use
-alias taskporter='docker run --rm -v $(pwd):/workspace -w /workspace ghcr.io/syndbg/taskporter'
+alias taskporter='docker run -ti --rm -v $(pwd):/workspace -w /workspace ghcr.io/syndbg/taskporter'
 taskporter list
 ```
 
