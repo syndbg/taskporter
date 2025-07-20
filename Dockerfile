@@ -1,5 +1,11 @@
-FROM scratch
+FROM alpine:latest
 
-COPY taskporter /taskporter
+RUN apk --no-cache add ca-certificates git
 
-ENTRYPOINT ["/taskporter"]
+WORKDIR /root/
+
+COPY taskporter /usr/local/bin/taskporter
+
+RUN chmod +x /usr/local/bin/taskporter
+
+ENTRYPOINT ["taskporter"]
