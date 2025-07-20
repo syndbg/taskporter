@@ -8,6 +8,8 @@
   [![CI](https://github.com/syndbg/taskporter/actions/workflows/ci.yml/badge.svg)](https://github.com/syndbg/taskporter/actions)
   [![Go Report Card](https://goreportcard.com/badge/github.com/syndbg/taskporter)](https://goreportcard.com/report/github.com/syndbg/taskporter)
   [![Release](https://img.shields.io/github/release/syndbg/taskporter.svg)](https://github.com/syndbg/taskporter/releases)
+  [![Docker](https://img.shields.io/badge/docker-ghcr.io-blue)](https://github.com/syndbg/taskporter/pkgs/container/taskporter)
+  [![Downloads](https://img.shields.io/github/downloads/syndbg/taskporter/total)](https://github.com/syndbg/taskporter/releases)
 
   *A Golang-powered CLI tool that acts as a "porter" for project automation, bridging and running tasks from various code editors directly from the terminal.*
 </div>
@@ -50,22 +52,74 @@ taskporter list --json
 
 ## 🛠 Installation
 
-### Using Go Install
+### 📦 Binary Downloads
+Download the latest release for your platform from [GitHub Releases](https://github.com/syndbg/taskporter/releases).
+
+**Quick install for common platforms:**
+```bash
+# Linux (x86_64)
+curl -L https://github.com/syndbg/taskporter/releases/latest/download/taskporter_Linux_x86_64.tar.gz | tar xz
+sudo mv taskporter /usr/local/bin/
+
+# macOS (Intel)
+curl -L https://github.com/syndbg/taskporter/releases/latest/download/taskporter_Darwin_x86_64.tar.gz | tar xz
+sudo mv taskporter /usr/local/bin/
+
+# macOS (Apple Silicon)
+curl -L https://github.com/syndbg/taskporter/releases/latest/download/taskporter_Darwin_arm64.tar.gz | tar xz
+sudo mv taskporter /usr/local/bin/
+
+# Windows (PowerShell)
+curl -L -o taskporter.zip https://github.com/syndbg/taskporter/releases/latest/download/taskporter_Windows_x86_64.zip
+Expand-Archive taskporter.zip
+```
+
+### 🐳 Docker
+```bash
+# Pull and run
+docker pull ghcr.io/syndbg/taskporter:latest
+docker run --rm -v $(pwd):/workspace -w /workspace ghcr.io/syndbg/taskporter list
+
+# Create an alias for easy use
+alias taskporter='docker run --rm -v $(pwd):/workspace -w /workspace ghcr.io/syndbg/taskporter'
+taskporter list
+```
+
+### 📋 Linux Package Managers
+**Debian/Ubuntu:**
+```bash
+# Download and install .deb package
+curl -L -O https://github.com/syndbg/taskporter/releases/latest/download/taskporter_amd64.deb
+sudo dpkg -i taskporter_amd64.deb
+```
+
+**Red Hat/CentOS/Fedora:**
+```bash
+# Download and install .rpm package
+curl -L -O https://github.com/syndbg/taskporter/releases/latest/download/taskporter_x86_64.rpm
+sudo rpm -i taskporter_x86_64.rpm
+```
+
+**Alpine Linux:**
+```bash
+# Download and install .apk package
+curl -L -O https://github.com/syndbg/taskporter/releases/latest/download/taskporter_x86_64.apk
+sudo apk add --allow-untrusted taskporter_x86_64.apk
+```
+
+### 🔧 Go Install
 ```bash
 go install github.com/syndbg/taskporter@latest
 ```
 
-### Download Binary
-Download the latest release for your platform from [GitHub Releases](https://github.com/syndbg/taskporter/releases).
-
-> **Note**: Taskporter uses [semantic versioning](https://semver.org/) with automatic releases based on [conventional commits](https://www.conventionalcommits.org/). New versions are automatically published when changes are merged to the main branch.
-
-### Build from Source
+### 🛠️ Build from Source
 ```bash
 git clone https://github.com/syndbg/taskporter.git
 cd taskporter
 make build
 ```
+
+> **Note**: Taskporter uses [semantic versioning](https://semver.org/) with automatic releases based on [conventional commits](https://www.conventionalcommits.org/). New versions are automatically published when changes are merged to the main branch.
 
 ## 🚀 Quick Start
 
