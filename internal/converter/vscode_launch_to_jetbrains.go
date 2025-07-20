@@ -283,7 +283,25 @@ func (c *VSCodeLaunchToJetBrainsConverter) addNodeJSOptions(task *config.Task, c
 
 // addPythonOptions adds Python-specific options
 func (c *VSCodeLaunchToJetBrainsConverter) addPythonOptions(task *config.Task, config *JetBrainsRunConfiguration) error {
-	// Extract Python script path
+	// Check if this is a Python module execution (python -m module)
+	if len(task.Args) >= 2 && task.Args[0] == "-m" {
+		// For module execution, we need to set SCRIPT_NAME to a dummy value
+		// and put the module execution in PARAMETERS
+		config.Options = append(config.Options, JetBrainsOption{
+			Name:  "SCRIPT_NAME",
+			Value: "python", // Dummy script name for module execution
+		})
+
+		// The parameters should include the full module execution
+		config.Options = append(config.Options, JetBrainsOption{
+			Name:  "PARAMETERS",
+			Value: strings.Join(task.Args, " "),
+		})
+
+		return nil
+	}
+
+	// Extract Python script path for regular script execution
 	program := c.extractProgramFromLaunch(task)
 	if program == "" {
 		return fmt.Errorf("could not determine program for Python application '%s'", task.Name)

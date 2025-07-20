@@ -382,7 +382,12 @@ func jetbrainsConfigToTask(jbConfig *JetBrainsRunConfiguration, language string)
 			}
 		}
 
-		if scriptName != "" {
+		// Check if this is a module execution (dummy script name + -m in parameters)
+		if scriptName == "python" && len(params) >= 2 && params[0] == "-m" {
+			// This is a Python module execution
+			args = params
+		} else if scriptName != "" {
+			// Regular script execution
 			args = append([]string{scriptName}, params...)
 		}
 	}
