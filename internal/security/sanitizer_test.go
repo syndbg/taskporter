@@ -177,7 +177,9 @@ func TestSanitizer(t *testing.T) {
 		// Create a temporary directory for testing
 		tempDir, err := os.MkdirTemp("", "sanitizer_test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() {
+			_ = os.RemoveAll(tempDir)
+		}()
 
 		sanitizer := NewSanitizer(tempDir)
 
@@ -286,7 +288,9 @@ func TestSanitizer(t *testing.T) {
 		// Create temporary files for testing
 		tempDir, err := os.MkdirTemp("", "sanitizer_config_test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() {
+			_ = os.RemoveAll(tempDir)
+		}()
 
 		validConfigFile := filepath.Join(tempDir, "valid.json")
 		err = os.WriteFile(validConfigFile, []byte("{}"), 0644)
@@ -328,7 +332,9 @@ func TestSanitizer(t *testing.T) {
 	t.Run("ValidateOutputPath", func(t *testing.T) {
 		tempDir, err := os.MkdirTemp("", "sanitizer_output_test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() {
+			_ = os.RemoveAll(tempDir)
+		}()
 
 		sanitizer := NewSanitizer(tempDir)
 

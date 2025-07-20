@@ -152,9 +152,6 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 		projectRoot = filepath.Dir(configPath)
 	}
 
-	// Update sanitizer with actual project root
-	sanitizer = security.NewSanitizer(projectRoot)
-
 	// Initialize project detector and find all tasks
 	detector := config.NewProjectDetector(projectRoot)
 	projectConfig, err := detector.DetectProject()
