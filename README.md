@@ -16,8 +16,6 @@
 
 Taskporter is a **cross-editor task bridge** that unifies task execution across different IDEs and editors. Just like Sam Porter Bridges connects isolated cities in Death Stranding, Taskporter connects your development tools, allowing you to run VSCode tasks, launch configurations, and JetBrains run configurations from a single, unified CLI.
 
-**No more context switching.** **No more remembering different IDE shortcuts.** **Just one command to rule them all.**
-
 ## ✨ Features
 
 ### 🎯 **Multi-Editor Support**
@@ -303,62 +301,24 @@ taskporter run --no-interactive
 - ✅ JetBrains variables (`$PROJECT_DIR$`, `$MODULE_DIR$`)
 - ✅ Working directory
 
-## 🔧 Development
-
-### Prerequisites
-- Go 1.21+
-- Make
-
-### Development Commands
-```bash
-# Run tests
-make test
-
-# Run tests with coverage
-make test-coverage
-
-# Build binary
-make build
-
-# Run linter
-make lint
-
-# Run all checks (test + lint)
-make check
-
-# Clean build artifacts
-make clean
-```
-
-### Project Structure
-```
-taskporter/
-├── cmd/                    # CLI commands
-│   ├── root.go            # Root command
-│   ├── list.go            # List command
-│   └── run.go             # Run command
-├── internal/
-│   ├── config/            # Configuration types
-│   ├── parser/            # File parsers
-│   │   ├── vscode/        # VSCode tasks & launch
-│   │   └── jetbrains/     # JetBrains XML configs
-│   └── runner/            # Task execution
-├── test/                  # Test data and fixtures
-└── .github/               # CI/CD and assets
-```
-
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Whether you're fixing bugs, adding features, improving documentation, or adding support for new IDEs, your help makes Taskporter better for everyone.
 
-### Adding New IDE Support
-Taskporter is designed to be extensible. To add support for a new IDE:
+**Get Started:** See our comprehensive [Contributing Guidelines](CONTRIBUTING.md) for:
+- Development setup and prerequisites
+- Build commands and project structure
+- Code style and testing guidelines
+- How to add new IDE support
+- Pull request process and review
+- Architecture guidelines and design principles
 
-1. Create a new parser in `internal/parser/youride/`
-2. Implement the parser interface
-3. Add detection logic in `internal/config/project_detector.go`
-4. Add integration to `cmd/list.go` and `cmd/run.go`
-5. Add comprehensive tests
+Quick start for contributors:
+```bash
+git clone https://github.com/yourusername/taskporter.git
+cd taskporter
+make check  # Verify everything works
+```
 
 ## 📄 License
 
@@ -373,7 +333,7 @@ Taskporter draws inspiration from Death Stranding's theme of connection and brid
 ---
 
 <div align="center">
-  <strong>🎯 Bridge your development workflow. Connect your tools. Deliver your code.</strong>
+  <strong>🌉 Bridge your development workflow. Connect your tools. Deliver your code.</strong>
 
   **Made with ❤️**
 </div>

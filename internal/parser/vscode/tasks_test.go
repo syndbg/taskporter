@@ -19,8 +19,8 @@ func TestTasksParser(t *testing.T) {
 	t.Run("ParseTasks", func(t *testing.T) {
 		t.Run("should parse all tasks from testdata", func(t *testing.T) {
 			// Use our testdata
-			testDataPath := filepath.Join("..", "..", "..", "test", "testdata", ".vscode", "tasks.json")
-			projectRoot := filepath.Join("..", "..", "..", "test", "testdata")
+			testDataPath := filepath.Join("..", "..", "test", "testdata", ".vscode", "tasks.json")
+			projectRoot := filepath.Join("..", "..", "test", "testdata")
 
 			parser := NewTasksParser(projectRoot)
 			tasks, err := parser.ParseTasks(testDataPath)
@@ -58,8 +58,8 @@ func TestTasksParser(t *testing.T) {
 		})
 
 		t.Run("should parse specific task properties correctly", func(t *testing.T) {
-			testDataPath := filepath.Join("..", "..", "..", "test", "testdata", ".vscode", "tasks.json")
-			projectRoot := filepath.Join("..", "..", "..", "test", "testdata")
+			testDataPath := filepath.Join("..", "..", "test", "testdata", ".vscode", "tasks.json")
+			projectRoot := filepath.Join("..", "..", "test", "testdata")
 
 			parser := NewTasksParser(projectRoot)
 			tasks, err := parser.ParseTasks(testDataPath)

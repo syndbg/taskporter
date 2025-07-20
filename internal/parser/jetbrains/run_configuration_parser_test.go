@@ -18,8 +18,8 @@ func TestRunConfigurationParser(t *testing.T) {
 
 	t.Run("ParseRunConfiguration", func(t *testing.T) {
 		t.Run("should parse Application configuration from testdata", func(t *testing.T) {
-			testDataPath := filepath.Join("..", "..", "..", "test", "jetbrains-testdata", ".idea", "runConfigurations", "Application.xml")
-			projectRoot := filepath.Join("..", "..", "..", "test", "jetbrains-testdata")
+			testDataPath := filepath.Join("..", "..", "test", "jetbrains-testdata", ".idea", "runConfigurations", "Application.xml")
+			projectRoot := filepath.Join("..", "..", "test", "jetbrains-testdata")
 
 			parser := NewRunConfigurationParser(projectRoot)
 			task, err := parser.ParseRunConfiguration(testDataPath)
@@ -41,8 +41,8 @@ func TestRunConfigurationParser(t *testing.T) {
 		})
 
 		t.Run("should parse Gradle configuration from testdata", func(t *testing.T) {
-			testDataPath := filepath.Join("..", "..", "..", "test", "jetbrains-testdata", ".idea", "runConfigurations", "Gradle_Build.xml")
-			projectRoot := filepath.Join("..", "..", "..", "test", "jetbrains-testdata")
+			testDataPath := filepath.Join("..", "..", "test", "jetbrains-testdata", ".idea", "runConfigurations", "Gradle_Build.xml")
+			projectRoot := filepath.Join("..", "..", "test", "jetbrains-testdata")
 
 			parser := NewRunConfigurationParser(projectRoot)
 			task, err := parser.ParseRunConfiguration(testDataPath)

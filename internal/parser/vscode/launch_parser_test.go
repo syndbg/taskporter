@@ -19,8 +19,8 @@ func TestLaunchParser(t *testing.T) {
 	t.Run("ParseLaunchConfigs", func(t *testing.T) {
 		t.Run("should parse all launch configs from testdata", func(t *testing.T) {
 			// Use our testdata
-			testDataPath := filepath.Join("..", "..", "..", "test", "testdata", ".vscode", "launch.json")
-			projectRoot := filepath.Join("..", "..", "..", "test", "testdata")
+			testDataPath := filepath.Join("..", "..", "test", "testdata", ".vscode", "launch.json")
+			projectRoot := filepath.Join("..", "..", "test", "testdata")
 
 			parser := NewLaunchParser(projectRoot)
 			tasks, err := parser.ParseLaunchConfigs(testDataPath)
@@ -57,8 +57,8 @@ func TestLaunchParser(t *testing.T) {
 		})
 
 		t.Run("should parse specific launch config properties", func(t *testing.T) {
-			testDataPath := filepath.Join("..", "..", "..", "test", "testdata", ".vscode", "launch.json")
-			projectRoot := filepath.Join("..", "..", "..", "test", "testdata")
+			testDataPath := filepath.Join("..", "..", "test", "testdata", ".vscode", "launch.json")
+			projectRoot := filepath.Join("..", "..", "test", "testdata")
 
 			parser := NewLaunchParser(projectRoot)
 			tasks, err := parser.ParseLaunchConfigs(testDataPath)
@@ -246,7 +246,7 @@ func TestLaunchParser(t *testing.T) {
 	})
 
 	t.Run("GetPreLaunchTask", func(t *testing.T) {
-		testDataPath := filepath.Join("..", "..", "..", "test", "testdata", ".vscode", "launch.json")
+		testDataPath := filepath.Join("..", "..", "test", "testdata", ".vscode", "launch.json")
 		parser := NewLaunchParser("/test")
 
 		t.Run("config with preLaunchTask", func(t *testing.T) {

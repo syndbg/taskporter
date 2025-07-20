@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"taskporter/cmd"
+	"taskporter/internal/cmd"
 )
 
 func main() {
