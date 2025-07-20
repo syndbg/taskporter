@@ -292,7 +292,8 @@ func getTaskSourceDisplay(task *config.Task) string {
 	}
 }
 
-func init() {
-	rootCmd.AddCommand(runCmd)
+// setupRunCommand configures the run command and its flags
+func setupRunCommand(rootCmd *cobra.Command) {
 	runCmd.Flags().BoolVar(&noInteractive, "no-interactive", false, "Disable interactive mode (useful for CI/CD)")
+	rootCmd.AddCommand(runCmd)
 }

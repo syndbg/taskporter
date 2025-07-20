@@ -228,6 +228,7 @@ func displayTasksJSON(tasks []*config.Task) error {
 	return encoder.Encode(output)
 }
 
-func init() {
+// setupListCommand configures the list command
+func setupListCommand(rootCmd *cobra.Command) {
 	rootCmd.AddCommand(listCmd)
 }

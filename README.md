@@ -79,6 +79,8 @@ make build
    taskporter run build
    taskporter run "Debug Application"
    taskporter run test --verbose
+   # Or disable interactive mode for scripting:
+   taskporter run --no-interactive
    ```
 
 ## 📖 Usage Examples
@@ -189,6 +191,7 @@ Executes the specified task or launch configuration.
 
 **Flags:**
 - `--verbose` - Show environment variables and detailed execution info
+- `--no-interactive` - Disable interactive mode (useful for CI/CD)
 
 **Examples:**
 ```bash
@@ -203,6 +206,9 @@ taskporter run "launch"  # matches "Launch Server"
 
 # With verbose output
 taskporter run test --verbose
+
+# Disable interactive mode (for CI/CD)
+taskporter run --no-interactive
 ```
 
 ### Global Flags
