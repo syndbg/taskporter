@@ -482,6 +482,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) extractGoPackageFromLaunch(task *conf
 			if packagePath == "$PROJECT_DIR$" {
 				return "."
 			}
+
 			return packagePath
 		}
 	}
@@ -493,6 +494,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) extractGoPackageFromLaunch(task *conf
 // filterGoArgsFromLaunch filters out go command and package path, returning only program arguments
 func (c *VSCodeLaunchToJetBrainsConverter) filterGoArgsFromLaunch(task *config.Task) []string {
 	var filtered []string
+
 	skipNext := false
 
 	for _, arg := range task.Args {

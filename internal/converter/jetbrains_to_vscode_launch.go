@@ -472,11 +472,13 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractGoArgs(task *config.Task) []st
 		// Parse from description if available
 		parts := strings.Fields(task.Description)
 		foundParams := false
+
 		for _, part := range parts {
 			if part == "PROGRAM_PARAMETERS" {
 				foundParams = true
 				continue
 			}
+
 			if foundParams {
 				args = append(args, part)
 			}

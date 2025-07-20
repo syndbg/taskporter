@@ -229,11 +229,13 @@ func TestJetBrainsToVSCodeLaunchConverter_BidirectionalConsistency(t *testing.T)
 
 			// Find launch configs (not attach)
 			var launchTasks []*config.Task
+
 			for _, task := range originalTasks {
 				if !containsString(task.Description, "attach") {
 					launchTasks = append(launchTasks, task)
 				}
 			}
+
 			require.NotEmpty(t, launchTasks)
 
 			for _, originalTask := range launchTasks {
@@ -271,6 +273,7 @@ func loadJetBrainsTestData(t *testing.T, filename string) *JetBrainsRunConfigura
 	require.NoError(t, err, "Failed to read test data file: %s", filename)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(data, &component)
 	require.NoError(t, err, "Failed to parse test data XML: %s", filename)
 
@@ -287,13 +290,16 @@ func jetbrainsConfigToTask(jbConfig *JetBrainsRunConfiguration, language string)
 	}
 
 	// Extract options and build command/args based on type
-	var command string
-	var args []string
+	var (
+		command string
+		args    []string
+	)
 
 	switch jbConfig.Type {
 	case "GoApplicationRunConfiguration":
 		command = "go"
 		packagePath := "."
+
 		var programParams []string
 
 		for _, option := range jbConfig.Options {
@@ -311,8 +317,11 @@ func jetbrainsConfigToTask(jbConfig *JetBrainsRunConfiguration, language string)
 
 	case "Application":
 		command = "java"
-		var mainClass string
-		var programParams []string
+
+		var (
+			mainClass     string
+			programParams []string
+		)
 
 		for _, option := range jbConfig.Options {
 			switch option.Name {
@@ -331,8 +340,11 @@ func jetbrainsConfigToTask(jbConfig *JetBrainsRunConfiguration, language string)
 
 	case "NodeJSConfigurationType":
 		command = "node"
-		var jsFile string
-		var appParams []string
+
+		var (
+			jsFile    string
+			appParams []string
+		)
 
 		for _, option := range jbConfig.Options {
 			switch option.Name {
@@ -351,8 +363,11 @@ func jetbrainsConfigToTask(jbConfig *JetBrainsRunConfiguration, language string)
 
 	case "PythonConfigurationType":
 		command = "python"
-		var scriptName string
-		var params []string
+
+		var (
+			scriptName string
+			params     []string
+		)
 
 		for _, option := range jbConfig.Options {
 			switch option.Name {
@@ -391,6 +406,7 @@ func parseSpaceSeparatedArgs(input string) []string {
 
 	// Simple space splitting - could be enhanced for quoted args if needed
 	args := strings.Fields(input)
+
 	return args
 }
 

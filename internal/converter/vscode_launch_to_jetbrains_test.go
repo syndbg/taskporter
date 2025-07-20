@@ -44,12 +44,15 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 			switch option.Name {
 			case "PACKAGE":
 				hasPackageOption = true
+
 				require.Equal(t, ".", option.Value)
 			case "RUN_KIND":
 				hasRunKindOption = true
+
 				require.Equal(t, "PACKAGE", option.Value)
 			case "PROGRAM_PARAMETERS":
 				hasProgramParams = true
+
 				require.Contains(t, option.Value, "--verbose")
 				require.Contains(t, option.Value, "--output")
 			}
@@ -93,9 +96,11 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 			switch option.Name {
 			case "MAIN_CLASS_NAME":
 				hasMainClass = true
+
 				require.Equal(t, "com.example.Application", option.Value)
 			case "PROGRAM_PARAMETERS":
 				hasProgramParams = true
+
 				require.Contains(t, option.Value, "--spring.profiles.active=dev")
 			}
 		}
@@ -133,9 +138,11 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 			switch option.Name {
 			case "PATH_TO_JS_FILE":
 				hasJSPath = true
+
 				require.Contains(t, option.Value, "src/index.js")
 			case "APPLICATION_PARAMETERS":
 				hasAppParams = true
+
 				require.Contains(t, option.Value, "--env development")
 			}
 		}
@@ -173,9 +180,11 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 			switch option.Name {
 			case "SCRIPT_NAME":
 				hasScriptName = true
+
 				require.Contains(t, option.Value, "src/main.py")
 			case "PARAMETERS":
 				hasParams = true
+
 				require.Contains(t, option.Value, "--verbose")
 				require.Contains(t, option.Value, "--config")
 			}
@@ -310,6 +319,7 @@ func loadVSCodeLaunchTestData(t *testing.T, filename string) map[string]interfac
 	require.NoError(t, err, "Failed to read test data file: %s", filename)
 
 	var launchFile map[string]interface{}
+
 	err = json.Unmarshal(data, &launchFile)
 	require.NoError(t, err, "Failed to parse test data JSON: %s", filename)
 
@@ -339,6 +349,7 @@ func parseVSCodeLaunchDataToTasks(t *testing.T, launchFile map[string]interface{
 
 		// Extract args
 		var args []string
+
 		if argsInterface, ok := configMap["args"].([]interface{}); ok {
 			for _, arg := range argsInterface {
 				if argStr, ok := arg.(string); ok {
@@ -362,9 +373,11 @@ func parseVSCodeLaunchDataToTasks(t *testing.T, launchFile map[string]interface{
 
 		// Create command based on type and properties
 		var command string
+
 		switch launchType {
 		case "go":
 			command = "go"
+
 			if program != "" {
 				args = append([]string{"run", program}, args...)
 			} else {
@@ -372,16 +385,19 @@ func parseVSCodeLaunchDataToTasks(t *testing.T, launchFile map[string]interface{
 			}
 		case "java":
 			command = "java"
+
 			if mainClass != "" {
 				args = append([]string{mainClass}, args...)
 			}
 		case "node":
 			command = "node"
+
 			if program != "" {
 				args = append([]string{program}, args...)
 			}
 		case "python":
 			command = "python"
+
 			if program != "" {
 				args = append([]string{program}, args...)
 			}
