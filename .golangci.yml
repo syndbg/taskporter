@@ -24,5 +24,4 @@ linters:
     - godot
     - exportloopref
     - whitespace
-  disable:
-    - gosec  # We use standalone gosec action for better security analysis
+    - gosec
