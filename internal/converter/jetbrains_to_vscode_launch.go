@@ -127,11 +127,16 @@ func (c *JetBrainsToVSCodeLaunchConverter) ConvertToLaunch(tasks []*config.Task,
 // canConvertToLaunch determines if a JetBrains task can be converted to a launch config
 func (c *JetBrainsToVSCodeLaunchConverter) canConvertToLaunch(task *config.Task) bool {
 	command := strings.ToLower(task.Command)
+	description := strings.ToLower(task.Description)
 
-	// Only convert Application-type configurations or those with executable commands
+	// Convert specific application types that can be launch configurations
 	return strings.Contains(command, "java") ||
 		strings.Contains(command, "node") ||
 		strings.Contains(command, "python") ||
+		strings.Contains(command, "go") ||
+		strings.Contains(description, "goapplicationrunconfiguration") ||
+		strings.Contains(description, "nodejsconfigurationtype") ||
+		strings.Contains(description, "pythonconfigurationtype") ||
 		strings.Contains(task.Name, "Application") ||
 		(strings.Contains(task.Command, " ") && !strings.Contains(command, "gradle") && !strings.Contains(command, "mvn"))
 }
@@ -169,8 +174,27 @@ func (c *JetBrainsToVSCodeLaunchConverter) convertSingleTaskToLaunch(task *confi
 // determineLaunchType sets the appropriate launch type and configuration
 func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task, launchConfig *VSCodeLaunchConfig) error {
 	command := strings.ToLower(task.Command)
+	description := strings.ToLower(task.Description)
 
-	if strings.Contains(command, "java") {
+	if strings.Contains(command, "go") || strings.Contains(description, "goapplicationrunconfiguration") {
+		// Go application
+		launchConfig.Type = "go"
+		launchConfig.Request = "launch"
+
+		// Extract package path and arguments for Go
+		packagePath := c.extractGoPackage(task)
+		if packagePath == "" {
+			packagePath = "${workspaceFolder}"
+		}
+
+		launchConfig.Program = packagePath
+
+		// Add program arguments
+		args := c.extractGoArgs(task)
+		if len(args) > 0 {
+			launchConfig.Args = args
+		}
+	} else if strings.Contains(command, "java") {
 		// Java application
 		launchConfig.Type = "java"
 
@@ -187,7 +211,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if len(args) > 0 {
 			launchConfig.Args = args
 		}
-	} else if strings.Contains(command, "node") {
+	} else if strings.Contains(command, "node") || strings.Contains(description, "nodejsconfigurationtype") {
 		// Node.js application
 		launchConfig.Type = "node"
 
@@ -204,7 +228,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if len(args) > 0 {
 			launchConfig.Args = args
 		}
-	} else if strings.Contains(command, "python") {
+	} else if strings.Contains(command, "python") || strings.Contains(description, "pythonconfigurationtype") {
 		// Python application
 		launchConfig.Type = "python"
 
@@ -405,4 +429,62 @@ func (c *JetBrainsToVSCodeLaunchConverter) writeVSCodeLaunchFile(launchFile *VSC
 	}
 
 	return nil
+}
+
+// extractGoPackage extracts the Go package path from JetBrains task
+func (c *JetBrainsToVSCodeLaunchConverter) extractGoPackage(task *config.Task) string {
+	// Look for PACKAGE option in JetBrains configuration description or command
+	if strings.Contains(task.Description, "PACKAGE") {
+		// Parse from description if available
+		parts := strings.Fields(task.Description)
+		for i, part := range parts {
+			if part == "PACKAGE" && i+1 < len(parts) {
+				return c.convertJetBrainsVariables(parts[i+1])
+			}
+		}
+	}
+
+	// Look for package path in command
+	parts := strings.Fields(task.Command)
+	for _, part := range parts {
+		if strings.Contains(part, "/") || strings.Contains(part, ".") {
+			return c.convertJetBrainsVariables(part)
+		}
+	}
+
+	// Look in args
+	for _, arg := range task.Args {
+		if strings.Contains(arg, "/") || strings.Contains(arg, ".") {
+			return c.convertJetBrainsVariables(arg)
+		}
+	}
+
+	// Default to workspace folder
+	return "${workspaceFolder}"
+}
+
+// extractGoArgs extracts Go program arguments from JetBrains task
+func (c *JetBrainsToVSCodeLaunchConverter) extractGoArgs(task *config.Task) []string {
+	var args []string
+
+	// Look for PROGRAM_PARAMETERS in task description
+	if strings.Contains(task.Description, "PROGRAM_PARAMETERS") {
+		// Parse from description if available
+		parts := strings.Fields(task.Description)
+		foundParams := false
+		for _, part := range parts {
+			if part == "PROGRAM_PARAMETERS" {
+				foundParams = true
+				continue
+			}
+			if foundParams {
+				args = append(args, part)
+			}
+		}
+	}
+
+	// Add task args
+	args = append(args, task.Args...)
+
+	return args
 }
