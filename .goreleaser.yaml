@@ -85,31 +85,28 @@ release:
     ## What's Changed
 
     Welcome to this new release of Taskporter! 🎉
-  footer: |
-    ## Docker Images
+    footer: |
+    ## Installation
 
-    ```bash
-    docker pull ghcr.io/syndbg/taskporter:{{.Version}}
-    docker pull ghcr.io/syndbg/taskporter:latest
-    ```
+    Download the appropriate binary for your platform from the assets above.
 
-    **Full Changelog**: https://github.com/syndbg/taskporter/compare/{{.PreviousTag}}...{{.Version}}
+    **Full Changelog**: https://github.com/syndbg/taskporter/releases
 
-git:
-  ignore_tags:
-    - '{{.Env.GORELEASER_PREVIOUS_TAG}}'
+# git:
+#   ignore_tags:
+#     - '{{.Env.GORELEASER_PREVIOUS_TAG}}'
 
-dockers:
-  - image_templates:
-      - "ghcr.io/syndbg/taskporter:latest"
-      - "ghcr.io/syndbg/taskporter:{{ .Version }}"
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
+# dockers:
+#   - image_templates:
+#       - "ghcr.io/syndbg/taskporter:latest"
+#       - "ghcr.io/syndbg/taskporter:{{ .Version }}"
+#     dockerfile: Dockerfile
+#     build_flag_templates:
+#       - "--platform=linux/amd64"
+#       - "--label=org.opencontainers.image.created={{.Date}}"
+#       - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#       - "--label=org.opencontainers.image.version={{.Version}}"
 
 # brews:
 #   - tap:
