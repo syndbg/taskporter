@@ -1,0 +1,151 @@
+project_name: taskporter
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: "386"
+      - goos: darwin
+        goarch: arm
+    main: ./main.go
+    binary: taskporter
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  groups:
+    - title: '🚀 Features'
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: '🐛 Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: '📖 Documentation updates'
+      regexp: '^.*?docs?(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: '🧹 Chores'
+      regexp: '^.*?chore(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: Other work
+      order: 999
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - typo
+
+release:
+  github:
+    owner: syndbg
+    name: taskporter
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}} v{{.Version}}"
+  header: |
+    ## What's Changed
+
+    Welcome to this new release of Taskporter! 🎉
+  footer: |
+    ## Docker Images
+
+    ```bash
+    docker pull ghcr.io/syndbg/taskporter:{{.Version}}
+    docker pull ghcr.io/syndbg/taskporter:latest
+    ```
+
+    **Full Changelog**: https://github.com/syndbg/taskporter/compare/{{.PreviousTag}}...{{.Version}}
+
+git:
+  ignore_tags:
+    - '{{.Env.GORELEASER_PREVIOUS_TAG}}'
+
+dockers:
+  - image_templates:
+      - "ghcr.io/syndbg/taskporter:latest"
+      - "ghcr.io/syndbg/taskporter:{{ .Version }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+
+# brews:
+#   - tap:
+#       owner: syndbg
+#       name: homebrew-tap
+#     folder: Formula
+#     homepage: "https://github.com/syndbg/taskporter"
+#     description: "Cross-platform tool for converting IDE configurations between VSCode and JetBrains"
+#     license: "MIT"
+#     test: |
+#       system "#{bin}/taskporter --version"
+#     dependencies:
+#       - name: git
+#     install: |-
+#       bin.install "taskporter"
+
+nfpms:
+  - file_name_template: '{{ .ConventionalFileName }}'
+    id: packages
+    homepage: https://github.com/syndbg/taskporter
+    description: |-
+      Cross-platform tool for converting IDE configurations between VSCode and JetBrains.
+      Supports converting launch configurations, tasks, and debug settings.
+    maintainer: Anton Antonov <syndbg@users.noreply.github.com>
+    license: MIT
+    vendor: syndbg
+    bindir: /usr/bin
+    section: utils
+    contents:
+      - src: ./LICENSE
+        dst: /usr/share/doc/taskporter/copyright
+        file_info:
+          mode: 0644
+    formats:
+      - apk
+      - deb
+      - rpm
+      - termux.deb
+      - archlinux
