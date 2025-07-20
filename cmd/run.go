@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var noInteractive bool
+
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run [task-name]",
@@ -20,6 +22,7 @@ var runCmd = &cobra.Command{
 	Long: `Execute a specified task or launch configuration from any supported editor.
 
 If no task name is provided, an interactive selector will be shown.
+Use --no-interactive flag to disable interactive mode (useful for CI/CD).
 
 The task name should match exactly as it appears in the configuration files.
 Supports tasks from:
@@ -131,8 +134,27 @@ func runTaskCommand(taskName string) error {
 		tasks[i] = *taskPtr
 	}
 
-	// If no task name provided, run interactive mode
+	// If no task name provided, run interactive mode (unless disabled)
 	if taskName == "" {
+		if noInteractive {
+			fmt.Println("❌ No task name provided and interactive mode is disabled.")
+			fmt.Println()
+			fmt.Println("Available tasks:")
+			for _, taskPtr := range allTasks {
+				fmt.Printf("  • %s", taskPtr.Name)
+				if taskPtr.Group != "" {
+					fmt.Printf(" [%s]", taskPtr.Group)
+				}
+				fmt.Printf(" - %s", getTaskSourceDisplay(taskPtr))
+				fmt.Println()
+			}
+			fmt.Println()
+			fmt.Println("Usage: taskporter run <task-name>")
+			fmt.Println("   or: taskporter run (for interactive mode)")
+			fmt.Println("📡 Strand connection failed... no task specified.")
+			return nil
+		}
+
 		if verbose {
 			fmt.Printf("🎮 Starting interactive task selector...\n")
 		}
@@ -256,6 +278,21 @@ func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectC
 	return nil
 }
 
+// getTaskSourceDisplay returns a display-friendly source name for a task
+func getTaskSourceDisplay(task *config.Task) string {
+	switch task.Type {
+	case config.TypeVSCodeTask:
+		return "VSCode Task"
+	case config.TypeVSCodeLaunch:
+		return "VSCode Launch"
+	case config.TypeJetBrains:
+		return "JetBrains"
+	default:
+		return string(task.Type)
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(runCmd)
+	runCmd.Flags().BoolVar(&noInteractive, "no-interactive", false, "Disable interactive mode (useful for CI/CD)")
 }
