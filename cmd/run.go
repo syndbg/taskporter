@@ -13,13 +13,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var noInteractive bool
+func NewRunCommand(verbose *bool, configPath *string) *cobra.Command {
+	var noInteractive bool
 
-// runCmd represents the run command
-var runCmd = &cobra.Command{
-	Use:   "run [task-name]",
-	Short: "Execute a task or launch configuration",
-	Long: `Execute a specified task or launch configuration from any supported editor.
+	runCmd := &cobra.Command{
+		Use:   "run [task-name]",
+		Short: "Execute a task or launch configuration",
+		Long: `Execute a specified task or launch configuration from any supported editor.
 
 If no task name is provided, an interactive selector will be shown.
 Use --no-interactive flag to disable interactive mode (useful for CI/CD).
@@ -31,20 +31,24 @@ Supports tasks from:
 - JetBrains run configurations
 
 Preparing to establish execution strand...`,
-	Args: cobra.MaximumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		var taskName string
-		if len(args) > 0 {
-			taskName = args[0]
-		}
-		if err := runTaskCommand(taskName); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-	},
+		Args: cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			var taskName string
+			if len(args) > 0 {
+				taskName = args[0]
+			}
+			if err := runTaskCommand(taskName, *verbose, *configPath, noInteractive); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		},
+	}
+
+	runCmd.Flags().BoolVar(&noInteractive, "no-interactive", false, "Disable interactive mode (useful for CI/CD)")
+	return runCmd
 }
 
-func runTaskCommand(taskName string) error {
+func runTaskCommand(taskName string, verbose bool, configPath string, noInteractive bool) error {
 	// Determine project root
 	projectRoot := "."
 	if configPath != "" {
@@ -168,7 +172,7 @@ func runTaskCommand(taskName string) error {
 		}
 		// Use the selected task
 		task := selectedTask
-		return executeSelectedTask(task, allTasks, projectConfig, detector)
+		return executeSelectedTask(task, allTasks, projectConfig, detector, verbose)
 	}
 
 	if verbose {
@@ -199,11 +203,11 @@ func runTaskCommand(taskName string) error {
 		fmt.Println()
 	}
 
-	return executeSelectedTask(task, allTasks, projectConfig, detector)
+	return executeSelectedTask(task, allTasks, projectConfig, detector, verbose)
 }
 
 // executeSelectedTask executes a task with proper preLaunchTask handling
-func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector) error {
+func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector, verbose bool) error {
 	// Check for preLaunchTask if this is a launch configuration
 	if task.Type == config.TypeVSCodeLaunch {
 		finder := runner.NewTaskFinder()

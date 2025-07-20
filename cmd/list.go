@@ -13,26 +13,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List available tasks and launch configurations",
-	Long: `List all discoverable tasks and launch configurations from supported editors.
+func NewListCommand(verbose *bool, outputFormat *string, configPath *string) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List available tasks and launch configurations",
+		Long: `List all discoverable tasks and launch configurations from supported editors.
 
 Scans for configuration files in the current project:
 - VSCode: .vscode/tasks.json, .vscode/launch.json
 - JetBrains: .idea/runConfigurations/*.xml
 
 Establishing connections to available configurations...`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := runListCommand(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-	},
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runListCommand(*verbose, *outputFormat, *configPath); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		},
+	}
 }
 
-func runListCommand() error {
+func runListCommand(verbose bool, outputFormat string, configPath string) error {
 	if verbose {
 		fmt.Println("🔍 Scanning for configuration files...")
 	}
@@ -135,10 +136,10 @@ func runListCommand() error {
 	}
 
 	// Display results
-	return displayTasks(allTasks)
+	return displayTasks(allTasks, outputFormat)
 }
 
-func displayTasks(tasks []*config.Task) error {
+func displayTasks(tasks []*config.Task, outputFormat string) error {
 	if outputFormat == "json" {
 		return displayTasksJSON(tasks)
 	}
