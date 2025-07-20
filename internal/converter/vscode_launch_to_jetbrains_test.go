@@ -344,6 +344,7 @@ func parseVSCodeLaunchDataToTasks(t *testing.T, launchFile map[string]interface{
 		launchType, _ := configMap["type"].(string)
 		request, _ := configMap["request"].(string)
 		program, _ := configMap["program"].(string)
+		module, _ := configMap["module"].(string)
 		mainClass, _ := configMap["mainClass"].(string)
 		cwd, _ := configMap["cwd"].(string)
 
@@ -400,6 +401,9 @@ func parseVSCodeLaunchDataToTasks(t *testing.T, launchFile map[string]interface{
 
 			if program != "" {
 				args = append([]string{program}, args...)
+			} else if module != "" {
+				// Handle Python module execution (python -m module)
+				args = append([]string{"-m", module}, args...)
 			}
 		default:
 			command = launchType

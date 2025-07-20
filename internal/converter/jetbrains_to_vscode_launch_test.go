@@ -32,7 +32,9 @@ func TestJetBrainsToVSCodeLaunchConverter_ConvertToLaunch(t *testing.T) {
 		require.Equal(t, "go", launchConfig.Type)
 		require.Equal(t, "launch", launchConfig.Request)
 		require.Equal(t, "Run Go App", launchConfig.Name)
-		require.Contains(t, launchConfig.Program, "${workspaceFolder}")
+		// For Go, program can be "." (current directory) or workspace folder
+		require.True(t, launchConfig.Program == "." || strings.Contains(launchConfig.Program, "workspaceFolder"),
+			"Program should be current directory or workspace folder, got: %s", launchConfig.Program)
 		require.Contains(t, launchConfig.Args, "--verbose")
 		require.Contains(t, launchConfig.Args, "--output")
 		require.Len(t, launchConfig.Env, 2)
