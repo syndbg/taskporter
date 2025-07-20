@@ -35,6 +35,7 @@ Connecting isolated development environments... strand established.`,
 
 	rootCmd.AddCommand(NewListCommand(&verbose, &outputFormat, &configPath))
 	rootCmd.AddCommand(NewRunCommand(&verbose, &configPath))
+	rootCmd.AddCommand(NewPortCommand(&verbose, &configPath))
 
 	return rootCmd
 }
