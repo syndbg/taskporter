@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "task-with-special-chars!@#",
+            "type": "shell",
+            "command": "echo",
+            "args": ["hello"],
+            "group": "build"
+        },
+        {
+            "label": "empty-command",
+            "type": "shell",
+            "command": "",
+            "args": [],
+            "group": "build"
+        },
+        {
+            "label": "no-args-task",
+            "type": "shell",
+            "command": "make",
+            "group": "build"
+        },
+        {
+            "label": "complex-gradle-task",
+            "type": "shell",
+            "command": "./gradlew",
+            "args": ["clean", "build", "-x", "test", "--parallel"],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/subproject",
+                "env": {
+                    "GRADLE_OPTS": "-Xmx4g -XX:+UseG1GC",
+                    "JAVA_HOME": "${env:JAVA_HOME}"
+                }
+            }
+        }
+    ]
+}

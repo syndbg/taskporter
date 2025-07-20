@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "compile-java",
+            "type": "shell",
+            "command": "javac",
+            "args": ["-cp", "lib/*", "src/main/java/com/example/Main.java"],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk",
+                    "DEBUG": "true"
+                }
+            }
+        },
+        {
+            "label": "run-java-app",
+            "type": "shell",
+            "command": "java",
+            "args": ["-cp", "src:lib/*", "com.example.Main"],
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            }
+        }
+    ]
+}

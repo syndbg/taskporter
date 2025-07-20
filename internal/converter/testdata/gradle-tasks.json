@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "gradle-build",
+            "type": "shell",
+            "command": "gradle",
+            "args": ["build", "--info"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "GRADLE_OPTS": "-Xmx2g"
+                }
+            }
+        },
+        {
+            "label": "gradle-test",
+            "type": "shell",
+            "command": "./gradlew",
+            "args": ["test", "--stacktrace"],
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "gradle-clean",
+            "type": "shell",
+            "command": "gradle",
+            "args": ["clean"],
+            "group": "build"
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "maven-compile",
+            "type": "shell",
+            "command": "mvn",
+            "args": ["compile"],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MAVEN_OPTS": "-Xmx1024m"
+                }
+            }
+        },
+        {
+            "label": "maven-test",
+            "type": "shell",
+            "command": "maven",
+            "args": ["test", "-Dtest.verbose=true"],
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "maven-package",
+            "type": "shell",
+            "command": "./mvnw",
+            "args": ["package", "-DskipTests"],
+            "group": "build"
+        }
+    ]
+}

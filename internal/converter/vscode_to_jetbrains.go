@@ -104,10 +104,9 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 		EnvVars: nil,
 	}
 
-	// Add options based on task type
-	switch {
-	case strings.Contains(strings.ToLower(task.Command), "java"):
-		config.Type = "Application"
+	// Add options based on task type (type was already determined by determineConfigType)
+	switch config.Type {
+	case "Application":
 		mainClass := c.extractMainClass(task)
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "MAIN_CLASS_NAME",
@@ -119,21 +118,18 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 				Value: strings.Join(task.Args, " "),
 			})
 		}
-	case strings.Contains(strings.ToLower(task.Command), "gradle"):
-		config.Type = "GradleRunTask"
+	case "GradleRunTask":
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "TASK_NAME",
 			Value: strings.Join(task.Args, " "),
 		})
-	case strings.Contains(strings.ToLower(task.Command), "maven") || strings.Contains(strings.ToLower(task.Command), "mvn"):
-		config.Type = "MavenRunConfiguration"
+	case "MavenRunConfiguration":
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "GOALS",
 			Value: strings.Join(task.Args, " "),
 		})
 	default:
-		// Generic shell/external tool configuration
-		config.Type = "ShellScript"
+		// Generic shell/external tool configuration or other types
 		scriptText := task.Command
 		if len(task.Args) > 0 {
 			scriptText += " " + strings.Join(task.Args, " ")
@@ -162,7 +158,7 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 		for key, value := range task.Env {
 			envVars = append(envVars, JetBrainsEnvVar{
 				Name:  key,
-				Value: value,
+				Value: c.convertVSCodeVariables(value),
 			})
 		}
 		config.EnvVars = &JetBrainsEnvVars{
@@ -178,7 +174,7 @@ func (c *VSCodeToJetBrainsConverter) determineConfigType(task *config.Task) stri
 	command := strings.ToLower(task.Command)
 
 	switch {
-	case strings.Contains(command, "java"):
+	case command == "java":
 		return "Application"
 	case strings.Contains(command, "gradle"):
 		return "GradleRunTask"
@@ -196,7 +192,8 @@ func (c *VSCodeToJetBrainsConverter) determineConfigType(task *config.Task) stri
 // extractMainClass attempts to extract a main class from Java-related tasks
 func (c *VSCodeToJetBrainsConverter) extractMainClass(task *config.Task) string {
 	// Look for main class in args
-	for i, arg := range task.Args {
+	for i := 0; i < len(task.Args); i++ {
+		arg := task.Args[i]
 		if strings.Contains(arg, ".") && !strings.HasPrefix(arg, "-") {
 			// Likely a class name
 			return arg

@@ -59,15 +59,15 @@ Establishing cross-platform development strand...`,
 	portCmd.Flags().StringVar(&outputPath, "output", "", "output path (default: auto-detect based on target format)")
 
 	// Mark required flags
-	portCmd.MarkFlagRequired("from")
-	portCmd.MarkFlagRequired("to")
+	_ = portCmd.MarkFlagRequired("from")
+	_ = portCmd.MarkFlagRequired("to")
 
 	// Add completion for format flags
 	formatOptions := []string{"vscode-tasks", "vscode-launch", "jetbrains"}
-	portCmd.RegisterFlagCompletionFunc("from", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	_ = portCmd.RegisterFlagCompletionFunc("from", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return formatOptions, cobra.ShellCompDirectiveNoFileComp
 	})
-	portCmd.RegisterFlagCompletionFunc("to", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	_ = portCmd.RegisterFlagCompletionFunc("to", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return formatOptions, cobra.ShellCompDirectiveNoFileComp
 	})
 

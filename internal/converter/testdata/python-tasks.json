@@ -1,0 +1,36 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "python-run",
+            "type": "shell",
+            "command": "python",
+            "args": ["main.py", "--verbose"],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}/lib",
+                    "DEBUG": "1"
+                }
+            }
+        },
+        {
+            "label": "pytest",
+            "type": "shell",
+            "command": "python",
+            "args": ["-m", "pytest", "tests/", "-v"],
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "pip-install",
+            "type": "shell",
+            "command": "pip",
+            "args": ["install", "-r", "requirements.txt"],
+            "group": "build"
+        }
+    ]
+}
