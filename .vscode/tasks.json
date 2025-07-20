@@ -13,17 +13,6 @@
             }
         },
         {
-            "label": "install-deps",
-            "type": "shell",
-            "command": "npm",
-            "args": ["install"],
-            "group": "build",
-            "detail": "Install Node.js dependencies",
-            "options": {
-                "cwd": "${workspaceFolder}/examples/node-app"
-            }
-        },
-        {
             "label": "test",
             "type": "shell",
             "command": "go",
@@ -32,10 +21,18 @@
             "detail": "Run all tests"
         },
         {
+            "label": "lint",
+            "type": "shell",
+            "command": "golangci-lint",
+            "args": ["run"],
+            "group": "build",
+            "detail": "Run Go linter"
+        },
+        {
             "label": "clean",
             "type": "shell",
             "command": "rm",
-            "args": ["-rf", "bin/"],
+            "args": ["-rf", "bin/", "coverage.out"],
             "group": "build",
             "detail": "Clean build artifacts"
         }
