@@ -12,23 +12,35 @@ import (
 
 // TaskRunner handles execution of tasks
 type TaskRunner struct {
-	verbose   bool
-	sanitizer *security.Sanitizer
+	verbose      bool
+	paranoidMode bool
+	sanitizer    *security.Sanitizer
 }
 
 // NewTaskRunner creates a new task runner
 func NewTaskRunner(verbose bool) *TaskRunner {
 	return &TaskRunner{
-		verbose:   verbose,
-		sanitizer: security.NewSanitizer("."), // Will be updated with proper project root
+		verbose:      verbose,
+		paranoidMode: false,                      // Default: trust user configurations
+		sanitizer:    security.NewSanitizer("."), // Will be updated with proper project root
 	}
 }
 
-// NewTaskRunnerWithProjectRoot creates a new task runner with a specific project root for security
+// NewTaskRunnerWithProjectRoot creates a new task runner with a specific project root
 func NewTaskRunnerWithProjectRoot(verbose bool, projectRoot string) *TaskRunner {
 	return &TaskRunner{
-		verbose:   verbose,
-		sanitizer: security.NewSanitizer(projectRoot),
+		verbose:      verbose,
+		paranoidMode: false, // Default: trust user configurations
+		sanitizer:    security.NewSanitizer(projectRoot),
+	}
+}
+
+// NewTaskRunnerWithOptions creates a new task runner with all options
+func NewTaskRunnerWithOptions(verbose bool, projectRoot string, paranoidMode bool) *TaskRunner {
+	return &TaskRunner{
+		verbose:      verbose,
+		paranoidMode: paranoidMode,
+		sanitizer:    security.NewSanitizer(projectRoot),
 	}
 }
 
@@ -42,38 +54,55 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 		if len(task.Env) > 0 {
 			fmt.Printf("🌐 Environment variables: %v\n", task.Env)
 		}
-		fmt.Printf("🛡️ Performing security validation...\n")
+		if tr.paranoidMode {
+			fmt.Printf("🛡️ Paranoid mode: Performing security validation...\n")
+		} else {
+			fmt.Printf("🤝 Trust mode: Executing user configuration as-is (like IDEs)\n")
+		}
 		fmt.Println("⚡ Starting execution...")
 		fmt.Println()
 	}
 
-	// Security validation
-	if err := tr.validateTaskSecurity(task); err != nil {
-		return fmt.Errorf("security validation failed for task '%s': %w", task.Name, err)
-	}
-
-	if tr.verbose {
-		fmt.Printf("✅ Security validation passed\n")
-	}
-
-	// Create the command with sanitized inputs
-	sanitizedArgs, err := tr.sanitizer.SanitizeArgs(task.Args)
-	if err != nil {
-		return fmt.Errorf("failed to sanitize arguments for task '%s': %w", task.Name, err)
-	}
-
-	cmd := exec.Command(task.Command, sanitizedArgs...)
-
-	// Set working directory (with validation)
-	if task.Cwd != "" {
-		sanitizedCwd, err := tr.sanitizer.SanitizePath(task.Cwd)
-		if err != nil {
-			return fmt.Errorf("failed to sanitize working directory for task '%s': %w", task.Name, err)
+	// Security validation (only in paranoid mode)
+	if tr.paranoidMode {
+		if err := tr.validateTaskSecurity(task); err != nil {
+			return fmt.Errorf("security validation failed for task '%s': %w", task.Name, err)
 		}
-		cmd.Dir = sanitizedCwd
+
+		if tr.verbose {
+			fmt.Printf("✅ Security validation passed\n")
+		}
 	}
 
-	// Set up environment variables (with validation)
+	// Create the command with optional sanitization
+	var args []string
+	var err error
+
+	if tr.paranoidMode {
+		args, err = tr.sanitizer.SanitizeArgs(task.Args)
+		if err != nil {
+			return fmt.Errorf("failed to sanitize arguments for task '%s': %w", task.Name, err)
+		}
+	} else {
+		args = task.Args // Use original arguments as-is
+	}
+
+	cmd := exec.Command(task.Command, args...)
+
+	// Set working directory (with optional validation)
+	if task.Cwd != "" {
+		if tr.paranoidMode {
+			sanitizedCwd, err := tr.sanitizer.SanitizePath(task.Cwd)
+			if err != nil {
+				return fmt.Errorf("failed to sanitize working directory for task '%s': %w", task.Name, err)
+			}
+			cmd.Dir = sanitizedCwd
+		} else {
+			cmd.Dir = task.Cwd // Use original path as-is
+		}
+	}
+
+	// Set up environment variables (with optional validation)
 	env, err := tr.buildEnvironment(task.Env)
 	if err != nil {
 		return fmt.Errorf("failed to build environment for task '%s': %w", task.Name, err)
@@ -99,7 +128,7 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 	return nil
 }
 
-// validateTaskSecurity performs comprehensive security validation on a task
+// validateTaskSecurity performs comprehensive security validation on a task (paranoid mode only)
 func (tr *TaskRunner) validateTaskSecurity(task *config.Task) error {
 	// Validate task name
 	if err := tr.sanitizer.ValidateTaskName(task.Name); err != nil {
@@ -131,21 +160,29 @@ func (tr *TaskRunner) validateTaskSecurity(task *config.Task) error {
 	return nil
 }
 
-// buildEnvironment creates the environment for task execution with security validation
+// buildEnvironment creates the environment for task execution with optional security validation
 func (tr *TaskRunner) buildEnvironment(taskEnv map[string]string) ([]string, error) {
 	// Start with current environment
 	env := os.Environ()
 
-	// Validate and sanitize task-specific environment variables
+	// Handle task-specific environment variables
 	if len(taskEnv) > 0 {
-		sanitizedEnv, err := tr.sanitizer.SanitizeEnvironment(taskEnv)
-		if err != nil {
-			return nil, fmt.Errorf("failed to sanitize environment variables: %w", err)
-		}
+		if tr.paranoidMode {
+			// Validate and sanitize in paranoid mode
+			sanitizedEnv, err := tr.sanitizer.SanitizeEnvironment(taskEnv)
+			if err != nil {
+				return nil, fmt.Errorf("failed to sanitize environment variables: %w", err)
+			}
 
-		// Add sanitized task-specific environment variables
-		for key, value := range sanitizedEnv {
-			env = append(env, fmt.Sprintf("%s=%s", key, value))
+			// Add sanitized task-specific environment variables
+			for key, value := range sanitizedEnv {
+				env = append(env, fmt.Sprintf("%s=%s", key, value))
+			}
+		} else {
+			// Use original environment variables as-is (trust mode)
+			for key, value := range taskEnv {
+				env = append(env, fmt.Sprintf("%s=%s", key, value))
+			}
 		}
 	}
 

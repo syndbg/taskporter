@@ -19,6 +19,7 @@ func NewPortCommand(verbose *bool, configPath *string) *cobra.Command {
 	var toFormat string
 	var dryRun bool
 	var outputPath string
+	var paranoidMode bool
 
 	portCmd := &cobra.Command{
 		Use:   "port",
@@ -31,6 +32,9 @@ Supports conversion between:
 
 This command helps bridge development workflows when switching between editors
 or working in mixed-IDE teams. Like a porter carrying cargo between stations!
+
+By default, taskporter trusts input configurations and processes them as-is.
+Use --paranoid-mode for additional security validation of paths and content.
 
 Examples:
   # Convert VSCode tasks to JetBrains format
@@ -47,7 +51,7 @@ Examples:
 
 Establishing cross-platform development strand...`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runPortCommand(fromFormat, toFormat, *verbose, *configPath, dryRun, outputPath); err != nil {
+			if err := runPortCommand(fromFormat, toFormat, *verbose, *configPath, dryRun, outputPath, paranoidMode); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
@@ -58,36 +62,40 @@ Establishing cross-platform development strand...`,
 	portCmd.Flags().StringVar(&fromFormat, "from", "", "source format (vscode-tasks, vscode-launch, jetbrains)")
 	portCmd.Flags().StringVar(&toFormat, "to", "", "target format (vscode-tasks, vscode-launch, jetbrains)")
 	portCmd.Flags().BoolVar(&dryRun, "dry-run", false, "preview changes without writing files")
-	portCmd.Flags().StringVar(&outputPath, "output", "", "output path (default: auto-detect based on target format)")
+	portCmd.Flags().StringVar(&outputPath, "output", "", "output directory (default: auto-detect)")
+	portCmd.Flags().BoolVar(&paranoidMode, "paranoid-mode", false, "Enable security validation of paths and content")
 
 	// Mark required flags
 	_ = portCmd.MarkFlagRequired("from")
 	_ = portCmd.MarkFlagRequired("to")
 
 	// Add completion for format flags
-	formatOptions := []string{"vscode-tasks", "vscode-launch", "jetbrains"}
 	_ = portCmd.RegisterFlagCompletionFunc("from", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return formatOptions, cobra.ShellCompDirectiveNoFileComp
+		return []string{"vscode-tasks", "vscode-launch", "jetbrains"}, cobra.ShellCompDirectiveNoFileComp
 	})
+
 	_ = portCmd.RegisterFlagCompletionFunc("to", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return formatOptions, cobra.ShellCompDirectiveNoFileComp
+		return []string{"vscode-tasks", "vscode-launch", "jetbrains"}, cobra.ShellCompDirectiveNoFileComp
 	})
 
 	return portCmd
 }
 
-func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string, dryRun bool, outputPath string) error {
-	// Create sanitizer for input validation
+func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string, dryRun bool, outputPath string, paranoidMode bool) error {
+	// Create sanitizer for input validation (only used in paranoid mode)
 	sanitizer := security.NewSanitizer(".")
 
-	// Validate config path if provided
-	if err := sanitizer.ValidateConfigPath(configPath); err != nil {
-		return fmt.Errorf("invalid config path: %w", err)
-	}
+	// Only validate inputs in paranoid mode
+	if paranoidMode {
+		// Validate config path if provided
+		if err := sanitizer.ValidateConfigPath(configPath); err != nil {
+			return fmt.Errorf("invalid config path: %w", err)
+		}
 
-	// Validate output path if provided
-	if err := sanitizer.ValidateOutputPath(outputPath); err != nil {
-		return fmt.Errorf("invalid output path: %w", err)
+		// Validate output path if provided
+		if err := sanitizer.ValidateOutputPath(outputPath); err != nil {
+			return fmt.Errorf("invalid output path: %w", err)
+		}
 	}
 
 	if verbose {
@@ -97,7 +105,11 @@ func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string
 		if dryRun {
 			fmt.Printf("🔍 Mode: Dry run (preview only)\n")
 		}
-		fmt.Printf("🛡️ Security validation passed\n")
+		if paranoidMode {
+			fmt.Printf("🛡️ Paranoid mode: Security validation enabled\n")
+		} else {
+			fmt.Printf("🤝 Trust mode: Processing configurations as-is\n")
+		}
 		fmt.Println()
 	}
 

@@ -88,6 +88,7 @@ func validTaskNames(cmd *cobra.Command, args []string, toComplete string) ([]str
 
 func NewRunCommand(verbose *bool, configPath *string) *cobra.Command {
 	var noInteractive bool
+	var paranoidMode bool
 
 	runCmd := &cobra.Command{
 		Use:   "run [task-name]",
@@ -103,6 +104,9 @@ Supports tasks from:
 - VSCode launch.json
 - JetBrains run configurations
 
+By default, taskporter trusts user configurations and executes them as-is (like IDEs).
+Use --paranoid-mode for additional security validation of commands and arguments.
+
 Preparing to establish execution strand...`,
 		Args:              cobra.MaximumNArgs(1),
 		ValidArgsFunction: validTaskNames,
@@ -111,7 +115,7 @@ Preparing to establish execution strand...`,
 			if len(args) > 0 {
 				taskName = args[0]
 			}
-			if err := runTaskCommand(taskName, *verbose, *configPath, noInteractive); err != nil {
+			if err := runTaskCommand(taskName, *verbose, *configPath, noInteractive, paranoidMode); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
@@ -119,23 +123,27 @@ Preparing to establish execution strand...`,
 	}
 
 	runCmd.Flags().BoolVar(&noInteractive, "no-interactive", false, "Disable interactive mode (useful for CI/CD)")
+	runCmd.Flags().BoolVar(&paranoidMode, "paranoid-mode", false, "Enable security validation (default: trust user configurations)")
 	return runCmd
 }
 
-func runTaskCommand(taskName string, verbose bool, configPath string, noInteractive bool) error {
-	// Create sanitizer for input validation
+func runTaskCommand(taskName string, verbose bool, configPath string, noInteractive bool, paranoidMode bool) error {
+	// Create sanitizer for input validation (only used in paranoid mode)
 	sanitizer := security.NewSanitizer(".")
 
-	// Validate task name if provided
-	if taskName != "" {
-		if err := sanitizer.ValidateTaskName(taskName); err != nil {
-			return fmt.Errorf("invalid task name: %w", err)
+	// Only validate inputs in paranoid mode
+	if paranoidMode {
+		// Validate task name if provided
+		if taskName != "" {
+			if err := sanitizer.ValidateTaskName(taskName); err != nil {
+				return fmt.Errorf("invalid task name: %w", err)
+			}
 		}
-	}
 
-	// Validate config path if provided
-	if err := sanitizer.ValidateConfigPath(configPath); err != nil {
-		return fmt.Errorf("invalid config path: %w", err)
+		// Validate config path if provided
+		if err := sanitizer.ValidateConfigPath(configPath); err != nil {
+			return fmt.Errorf("invalid config path: %w", err)
+		}
 	}
 
 	// Determine project root
@@ -264,7 +272,7 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 		}
 		// Use the selected task
 		task := selectedTask
-		return executeSelectedTask(task, allTasks, projectConfig, detector, verbose)
+		return executeSelectedTask(task, allTasks, projectConfig, detector, verbose, paranoidMode)
 	}
 
 	if verbose {
@@ -295,21 +303,21 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 		fmt.Println()
 	}
 
-	return executeSelectedTask(task, allTasks, projectConfig, detector, verbose)
+	return executeSelectedTask(task, allTasks, projectConfig, detector, verbose, paranoidMode)
 }
 
 // executeSelectedTask executes a task with proper preLaunchTask handling
-func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector, verbose bool) error {
+func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector, verbose bool, paranoidMode bool) error {
 	// Check for preLaunchTask if this is a launch configuration
 	if task.Type == config.TypeVSCodeLaunch {
 		finder := runner.NewTaskFinder()
-		if err := runPreLaunchTask(task, allTasks, projectConfig, detector, finder, verbose); err != nil {
+		if err := runPreLaunchTask(task, allTasks, projectConfig, detector, finder, verbose, paranoidMode); err != nil {
 			return fmt.Errorf("preLaunchTask failed: %w", err)
 		}
 	}
 
-	// Execute the main task with project root for security
-	taskRunner := runner.NewTaskRunnerWithProjectRoot(verbose, projectConfig.ProjectRoot)
+	// Execute the main task with paranoid mode option
+	taskRunner := runner.NewTaskRunnerWithOptions(verbose, projectConfig.ProjectRoot, paranoidMode)
 	if err := taskRunner.RunTask(task); err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
@@ -318,7 +326,7 @@ func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConf
 }
 
 // runPreLaunchTask executes a preLaunchTask if specified in a launch configuration
-func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector, finder *runner.TaskFinder, verbose bool) error {
+func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector, finder *runner.TaskFinder, verbose bool, paranoidMode bool) error {
 	// Only check VSCode launch configurations for preLaunchTask
 	if launchTask.Type != config.TypeVSCodeLaunch {
 		return nil
@@ -360,8 +368,8 @@ func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectC
 		fmt.Println()
 	}
 
-	// Execute the preLaunchTask with project root for security
-	taskRunner := runner.NewTaskRunnerWithProjectRoot(verbose, projectConfig.ProjectRoot)
+	// Execute the preLaunchTask with paranoid mode option
+	taskRunner := runner.NewTaskRunnerWithOptions(verbose, projectConfig.ProjectRoot, paranoidMode)
 	if err := taskRunner.RunTask(preLaunchTask); err != nil {
 		return fmt.Errorf("preLaunchTask '%s' execution failed: %w", preLaunchTaskName, err)
 	}

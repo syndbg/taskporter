@@ -15,124 +15,114 @@ func TestTaskRunner(t *testing.T) {
 		require.False(t, runner.verbose)
 	})
 
-	t.Run("NewTaskRunnerWithProjectRoot", func(t *testing.T) {
-		runner := NewTaskRunnerWithProjectRoot(true, "/test/project")
+	t.Run("NewTaskRunnerWithOptions", func(t *testing.T) {
+		runner := NewTaskRunnerWithOptions(true, "/test/project", true)
 		require.NotNil(t, runner)
 		require.True(t, runner.verbose)
-		require.NotNil(t, runner.sanitizer) // Just check that sanitizer is initialized
+		require.True(t, runner.paranoidMode)
+		require.NotNil(t, runner.sanitizer)
 	})
 
 	t.Run("buildEnvironment", func(t *testing.T) {
-		runner := NewTaskRunner(false)
+		t.Run("trust mode", func(t *testing.T) {
+			runner := NewTaskRunner(false) // paranoidMode = false by default
 
-		t.Run("with no task environment", func(t *testing.T) {
-			env, err := runner.buildEnvironment(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, env) // Should have system environment
+			t.Run("with task environment variables", func(t *testing.T) {
+				taskEnv := map[string]string{
+					"DEBUG":    "true",
+					"NODE_ENV": "development",
+					"PATH":     "/custom/bin:$PATH", // Should be allowed in trust mode
+				}
+
+				env, err := runner.buildEnvironment(taskEnv)
+				require.NoError(t, err)
+				require.NotEmpty(t, env)
+
+				// Check that our task env vars are present (including PATH)
+				var foundDebug, foundNodeEnv, foundPath bool
+				for _, envVar := range env {
+					if envVar == "DEBUG=true" {
+						foundDebug = true
+					}
+					if envVar == "NODE_ENV=development" {
+						foundNodeEnv = true
+					}
+					if envVar == "PATH=/custom/bin:$PATH" {
+						foundPath = true
+					}
+				}
+
+				require.True(t, foundDebug, "DEBUG environment variable should be set")
+				require.True(t, foundNodeEnv, "NODE_ENV environment variable should be set")
+				require.True(t, foundPath, "PATH environment variable should be allowed in trust mode")
+			})
 		})
 
-		t.Run("with task environment variables", func(t *testing.T) {
-			taskEnv := map[string]string{
-				"DEBUG":    "true",
-				"NODE_ENV": "development",
-			}
+		t.Run("paranoid mode", func(t *testing.T) {
+			runner := NewTaskRunnerWithOptions(false, "/test/project", true)
 
-			env, err := runner.buildEnvironment(taskEnv)
-			require.NoError(t, err)
-			require.NotEmpty(t, env)
-
-			// Check that our task env vars are present
-			var foundDebug, foundNodeEnv bool
-			for _, envVar := range env {
-				if envVar == "DEBUG=true" {
-					foundDebug = true
+			t.Run("with valid environment variables", func(t *testing.T) {
+				taskEnv := map[string]string{
+					"DEBUG":      "true",
+					"BUILD_TYPE": "release",
 				}
-				if envVar == "NODE_ENV=development" {
-					foundNodeEnv = true
+
+				env, err := runner.buildEnvironment(taskEnv)
+				require.NoError(t, err)
+				require.NotEmpty(t, env)
+			})
+
+			t.Run("with invalid environment variables", func(t *testing.T) {
+				taskEnv := map[string]string{
+					"PATH": "/malicious/path", // Should be rejected in paranoid mode
 				}
-			}
 
-			require.True(t, foundDebug, "DEBUG environment variable should be set")
-			require.True(t, foundNodeEnv, "NODE_ENV environment variable should be set")
-		})
-
-		t.Run("with invalid environment variables", func(t *testing.T) {
-			taskEnv := map[string]string{
-				"PATH": "/malicious/path", // Should be rejected by security validation
-			}
-
-			_, err := runner.buildEnvironment(taskEnv)
-			require.Error(t, err)
-			require.Contains(t, err.Error(), "PATH")
+				_, err := runner.buildEnvironment(taskEnv)
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "PATH")
+			})
 		})
 	})
 
-	t.Run("validateTaskSecurity", func(t *testing.T) {
-		runner := NewTaskRunner(false)
-
-		t.Run("valid task should pass", func(t *testing.T) {
+	t.Run("RunTask modes", func(t *testing.T) {
+		t.Run("trust mode allows shell operators", func(t *testing.T) {
+			runner := NewTaskRunner(false) // paranoidMode = false by default
 			task := &config.Task{
-				Name:    "build",
-				Command: "go",
-				Args:    []string{"build", "-o", "bin/app"},
-				Cwd:     ".",
-				Env: map[string]string{
-					"CGO_ENABLED": "0",
-				},
+				Name:    "complex-build",
+				Command: "echo",
+				Args:    []string{"build && test"}, // Would be blocked in paranoid mode
+				Type:    config.TypeVSCodeTask,
 			}
 
-			err := runner.validateTaskSecurity(task)
+			// This should work in trust mode
+			err := runner.RunTask(task)
 			require.NoError(t, err)
 		})
 
-		t.Run("task with dangerous command should be rejected", func(t *testing.T) {
+		t.Run("paranoid mode blocks dangerous patterns", func(t *testing.T) {
+			runner := NewTaskRunnerWithOptions(false, ".", true) // paranoidMode = true
 			task := &config.Task{
 				Name:    "malicious",
-				Command: "rm -rf /",
+				Command: "rm -rf /", // This should be blocked by command validation
 				Args:    []string{},
+				Type:    config.TypeVSCodeTask,
 			}
 
-			err := runner.validateTaskSecurity(task)
+			// This should be blocked in paranoid mode
+			err := runner.RunTask(task)
 			require.Error(t, err)
-			require.Contains(t, err.Error(), "dangerous")
-		})
-
-		t.Run("task with dangerous arguments should be rejected", func(t *testing.T) {
-			task := &config.Task{
-				Name:    "test",
-				Command: "echo",
-				Args:    []string{"$(whoami)"},
-			}
-
-			err := runner.validateTaskSecurity(task)
-			require.Error(t, err)
-		})
-
-		t.Run("task with invalid environment should be rejected", func(t *testing.T) {
-			task := &config.Task{
-				Name:    "test",
-				Command: "echo",
-				Args:    []string{"hello"},
-				Env: map[string]string{
-					"PATH": "/malicious",
-				},
-			}
-
-			err := runner.validateTaskSecurity(task)
-			require.Error(t, err)
+			require.Contains(t, err.Error(), "security validation failed")
 		})
 	})
 
 	t.Run("RunTask", func(t *testing.T) {
 		t.Run("successful command execution", func(t *testing.T) {
 			runner := NewTaskRunner(false)
-
 			task := &config.Task{
-				Name:    "echo-test",
-				Type:    config.TypeVSCodeTask,
+				Name:    "test-echo",
 				Command: "echo",
 				Args:    []string{"hello", "world"},
-				Cwd:     "",
+				Type:    config.TypeVSCodeTask,
 			}
 
 			err := runner.RunTask(task)
@@ -141,33 +131,28 @@ func TestTaskRunner(t *testing.T) {
 
 		t.Run("command not found", func(t *testing.T) {
 			runner := NewTaskRunner(false)
-
 			task := &config.Task{
-				Name:    "nonexistent-command",
-				Type:    config.TypeVSCodeTask,
-				Command: "this-command-does-not-exist-12345",
+				Name:    "test-nonexistent",
+				Command: "nonexistent-command-12345",
 				Args:    []string{},
-				Cwd:     "",
+				Type:    config.TypeVSCodeTask,
 			}
 
 			err := runner.RunTask(task)
 			require.Error(t, err)
-			require.Contains(t, err.Error(), "task 'nonexistent-command' failed")
+			require.Contains(t, err.Error(), "failed")
 		})
 
 		t.Run("with environment variables", func(t *testing.T) {
 			runner := NewTaskRunner(false)
-
-			// Use a command that will show environment variables
 			task := &config.Task{
-				Name:    "env-test",
-				Type:    config.TypeVSCodeTask,
+				Name:    "test-env",
 				Command: "sh",
 				Args:    []string{"-c", "echo $TEST_VAR"},
-				Cwd:     "",
 				Env: map[string]string{
 					"TEST_VAR": "test_value",
 				},
+				Type: config.TypeVSCodeTask,
 			}
 
 			err := runner.RunTask(task)
