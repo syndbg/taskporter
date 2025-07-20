@@ -1,0 +1,28 @@
+version: "2"
+
+run:
+  timeout: 5m
+  go: '1.24.5'
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofmt
+    - goimports
+    - misspell
+    - revive
+    - unconvert
+    - gocyclo
+    - gofumpt
+    - goconst
+    - godot
+    - exportloopref
+    - whitespace
+  disable:
+    - gosec  # We use standalone gosec action for better security analysis
