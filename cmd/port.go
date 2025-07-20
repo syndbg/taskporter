@@ -7,6 +7,7 @@ import (
 
 	"taskporter/internal/config"
 	"taskporter/internal/converter"
+	"taskporter/internal/parser/jetbrains"
 	"taskporter/internal/parser/vscode"
 
 	"github.com/spf13/cobra"
@@ -100,6 +101,12 @@ func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string
 	switch {
 	case fromFormat == "vscode-tasks" && toFormat == "jetbrains":
 		return convertVSCodeTasksToJetBrains(projectRoot, outputPath, verbose, dryRun)
+	case fromFormat == "jetbrains" && toFormat == "vscode-tasks":
+		return convertJetBrainsToVSCodeTasks(projectRoot, outputPath, verbose, dryRun)
+	case fromFormat == "jetbrains" && toFormat == "vscode-launch":
+		return convertJetBrainsToVSCodeLaunch(projectRoot, outputPath, verbose, dryRun)
+	case fromFormat == "vscode-launch" && toFormat == "jetbrains":
+		return convertVSCodeLaunchToJetBrains(projectRoot, outputPath, verbose, dryRun)
 	default:
 		fmt.Printf("🚧 Conversion from %s to %s is not yet implemented!\n", fromFormat, toFormat)
 		fmt.Printf("📋 Planned conversion: %s → %s\n", fromFormat, toFormat)
@@ -155,6 +162,151 @@ func convertVSCodeTasksToJetBrains(projectRoot, outputPath string, verbose, dryR
 	// Create converter and perform conversion
 	conv := converter.NewVSCodeToJetBrainsConverter(projectRoot, outputPath, verbose)
 	return conv.ConvertTasks(tasks, dryRun)
+}
+
+// convertJetBrainsToVSCodeTasks handles the conversion from JetBrains to VSCode tasks
+func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryRun bool) error {
+	// Initialize project detector
+	detector := config.NewProjectDetector(projectRoot)
+	projectConfig, err := detector.DetectProject()
+	if err != nil {
+		return fmt.Errorf("failed to detect project configuration: %w", err)
+	}
+
+	if !projectConfig.HasJetBrains {
+		return fmt.Errorf("no JetBrains configuration found in project")
+	}
+
+	// Parse JetBrains configurations
+	jetbrainsPaths := detector.GetJetBrainsRunConfigPaths()
+	if len(jetbrainsPaths) == 0 {
+		return fmt.Errorf("no JetBrains run configurations found")
+	}
+
+	if verbose {
+		fmt.Printf("📋 Reading JetBrains configurations from %d files\n", len(jetbrainsPaths))
+	}
+
+	parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+	var allTasks []*config.Task
+
+	for _, configPath := range jetbrainsPaths {
+		task, err := parser.ParseRunConfiguration(configPath)
+		if err != nil {
+			if verbose {
+				fmt.Printf("⚠️  Warning: failed to parse %s: %v\n", configPath, err)
+			}
+			continue
+		}
+		allTasks = append(allTasks, task)
+	}
+
+	if len(allTasks) == 0 {
+		fmt.Printf("⚠️  No valid JetBrains configurations found to convert\n")
+		return nil
+	}
+
+	if verbose {
+		fmt.Printf("✅ Found %d JetBrains configurations to convert\n", len(allTasks))
+	}
+
+	// Create converter and perform conversion
+	conv := converter.NewJetBrainsToVSCodeConverter(projectRoot, outputPath, verbose)
+	return conv.ConvertTasks(allTasks, dryRun)
+}
+
+// convertJetBrainsToVSCodeLaunch handles the conversion from JetBrains to VSCode launch
+func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dryRun bool) error {
+	// Initialize project detector
+	detector := config.NewProjectDetector(projectRoot)
+	projectConfig, err := detector.DetectProject()
+	if err != nil {
+		return fmt.Errorf("failed to detect project configuration: %w", err)
+	}
+
+	if !projectConfig.HasJetBrains {
+		return fmt.Errorf("no JetBrains configuration found in project")
+	}
+
+	// Parse JetBrains configurations
+	jetbrainsPaths := detector.GetJetBrainsRunConfigPaths()
+	if len(jetbrainsPaths) == 0 {
+		return fmt.Errorf("no JetBrains run configurations found")
+	}
+
+	if verbose {
+		fmt.Printf("📋 Reading JetBrains configurations from %d files\n", len(jetbrainsPaths))
+	}
+
+	parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+	var allTasks []*config.Task
+
+	for _, configPath := range jetbrainsPaths {
+		task, err := parser.ParseRunConfiguration(configPath)
+		if err != nil {
+			if verbose {
+				fmt.Printf("⚠️  Warning: failed to parse %s: %v\n", configPath, err)
+			}
+			continue
+		}
+		allTasks = append(allTasks, task)
+	}
+
+	if len(allTasks) == 0 {
+		fmt.Printf("⚠️  No valid JetBrains configurations found to convert\n")
+		return nil
+	}
+
+	if verbose {
+		fmt.Printf("✅ Found %d JetBrains configurations to convert\n", len(allTasks))
+	}
+
+	// Create converter and perform conversion
+	conv := converter.NewJetBrainsToVSCodeLaunchConverter(projectRoot, outputPath, verbose)
+	return conv.ConvertToLaunch(allTasks, dryRun)
+}
+
+// convertVSCodeLaunchToJetBrains handles the conversion from VSCode launch to JetBrains
+func convertVSCodeLaunchToJetBrains(projectRoot, outputPath string, verbose, dryRun bool) error {
+	// Initialize project detector
+	detector := config.NewProjectDetector(projectRoot)
+	projectConfig, err := detector.DetectProject()
+	if err != nil {
+		return fmt.Errorf("failed to detect project configuration: %w", err)
+	}
+
+	if !projectConfig.HasVSCode {
+		return fmt.Errorf("no VSCode configuration found in project")
+	}
+
+	// Parse VSCode launch configurations
+	launchPath := detector.GetVSCodeLaunchPath()
+	if launchPath == "" {
+		return fmt.Errorf("no VSCode launch.json found")
+	}
+
+	if verbose {
+		fmt.Printf("📋 Reading VSCode launch configs from: %s\n", launchPath)
+	}
+
+	launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+	launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
+	if err != nil {
+		return fmt.Errorf("failed to parse VSCode launch configs: %w", err)
+	}
+
+	if len(launchTasks) == 0 {
+		fmt.Printf("⚠️  No launch configurations found in %s\n", launchPath)
+		return nil
+	}
+
+	if verbose {
+		fmt.Printf("✅ Found %d VSCode launch configurations to convert\n", len(launchTasks))
+	}
+
+	// Create converter and perform conversion
+	conv := converter.NewVSCodeLaunchToJetBrainsConverter(projectRoot, outputPath, verbose)
+	return conv.ConvertLaunchConfigs(launchTasks, dryRun)
 }
 
 func validateFormatCombination(from, to string) error {
