@@ -39,14 +39,12 @@ func Execute() {
 
 // setupCommands configures all commands and their flags
 func setupCommands() {
-	setupGlobalFlags(rootCmd)
-	setupListCommand(rootCmd)
-	setupRunCommand(rootCmd)
-}
+	// Setup global flags directly
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "config file path (default: auto-detect)")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "text", "output format (text, json)")
 
-// setupGlobalFlags configures the global flags for the root command
-func setupGlobalFlags(cmd *cobra.Command) {
-	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	cmd.PersistentFlags().StringVar(&configPath, "config", "", "config file path (default: auto-detect)")
-	cmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "text", "output format (text, json)")
+	// Setup commands directly
+	setupListCommand()
+	setupRunCommand()
 }
