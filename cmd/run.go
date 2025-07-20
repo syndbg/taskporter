@@ -13,6 +13,78 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// getAllTasksQuiet gets all tasks without verbose output for completion
+func getAllTasksQuiet() ([]*config.Task, error) {
+	// Determine project root
+	projectRoot := "."
+
+	// Initialize project detector
+	detector := config.NewProjectDetector(projectRoot)
+	projectConfig, err := detector.DetectProject()
+	if err != nil {
+		return nil, err
+	}
+
+	var allTasks []*config.Task
+
+	// Parse VSCode tasks
+	if projectConfig.HasVSCode {
+		if tasksPath := detector.GetVSCodeTasksPath(); tasksPath != "" {
+			parser := vscode.NewTasksParser(projectConfig.ProjectRoot)
+			tasks, err := parser.ParseTasks(tasksPath)
+			if err == nil {
+				allTasks = append(allTasks, tasks...)
+			}
+		}
+
+		// Parse VSCode launch configurations
+		if launchPath := detector.GetVSCodeLaunchPath(); launchPath != "" {
+			launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+			launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
+			if err == nil {
+				allTasks = append(allTasks, launchTasks...)
+			}
+		}
+	}
+
+	// Parse JetBrains configurations
+	if projectConfig.HasJetBrains {
+		jetbrainsPaths := detector.GetJetBrainsRunConfigPaths()
+		if len(jetbrainsPaths) > 0 {
+			parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+			for _, path := range jetbrainsPaths {
+				task, err := parser.ParseRunConfiguration(path)
+				if err == nil {
+					allTasks = append(allTasks, task)
+				}
+			}
+		}
+	}
+
+	return allTasks, nil
+}
+
+// validTaskNames provides dynamic completion for task names
+func validTaskNames(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) > 0 {
+		// Only complete the first argument (task name)
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// Get the project configurations to find available tasks
+	tasks, err := getAllTasksQuiet()
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	var taskNames []string
+	for _, task := range tasks {
+		taskNames = append(taskNames, task.Name)
+	}
+
+	return taskNames, cobra.ShellCompDirectiveNoFileComp
+}
+
 func NewRunCommand(verbose *bool, configPath *string) *cobra.Command {
 	var noInteractive bool
 
@@ -31,7 +103,8 @@ Supports tasks from:
 - JetBrains run configurations
 
 Preparing to establish execution strand...`,
-		Args: cobra.MaximumNArgs(1),
+		Args:              cobra.MaximumNArgs(1),
+		ValidArgsFunction: validTaskNames,
 		Run: func(cmd *cobra.Command, args []string) {
 			var taskName string
 			if len(args) > 0 {

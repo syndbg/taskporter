@@ -29,6 +29,10 @@ Connecting isolated development environments... strand established.`,
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "config file path (default: auto-detect)")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "text", "output format (text, json)")
 
+	rootCmd.RegisterFlagCompletionFunc("output", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"text", "json"}, cobra.ShellCompDirectiveNoFileComp
+	})
+
 	rootCmd.AddCommand(NewListCommand(&verbose, &outputFormat, &configPath))
 	rootCmd.AddCommand(NewRunCommand(&verbose, &configPath))
 

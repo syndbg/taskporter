@@ -83,6 +83,67 @@ make build
    taskporter run --no-interactive
    ```
 
+## 🔧 Shell Completion
+
+Taskporter supports intelligent shell completion for commands, flags, and **dynamic task names** from your project configurations!
+
+### Quick Setup
+
+**Bash:**
+```bash
+# Add to ~/.bashrc or ~/.bash_profile
+source <(taskporter completion bash)
+
+# Or install globally
+taskporter completion bash > /etc/bash_completion.d/taskporter
+```
+
+**Zsh:**
+```bash
+# Add to ~/.zshrc
+source <(taskporter completion zsh)
+
+# Or add to your completion directory
+taskporter completion zsh > "${fpath[1]}/_taskporter"
+```
+
+**Fish:**
+```bash
+# Add to ~/.config/fish/config.fish
+taskporter completion fish | source
+
+# Or install globally
+taskporter completion fish > ~/.config/fish/completions/taskporter.fish
+```
+
+**PowerShell:**
+```powershell
+# Add to your PowerShell profile
+taskporter completion powershell | Out-String | Invoke-Expression
+```
+
+### 🎯 What Gets Completed
+
+- **Commands**: `list`, `run`, `completion`
+- **Flags**: `--verbose`, `--output`, `--config`, `--no-interactive`
+- **Flag Values**: `--output <TAB>` shows `text` and `json`
+- **🔥 Task Names**: `taskporter run <TAB>` shows all available tasks from your project!
+
+### ✨ Example Usage
+```bash
+taskporter run <TAB><TAB>
+# Shows all your project tasks:
+# build  test  clean  "Launch Server"  "Debug App"  "Run Main"
+
+taskporter run b<TAB>
+# Completes to "build"
+
+taskporter list --output <TAB><TAB>
+# Shows: text  json
+```
+
+The completion is **context-aware** - it reads your actual VSCode and JetBrains configurations to provide accurate task name suggestions!
+
 ## 📖 Usage Examples
 
 ### VSCode Tasks Example
