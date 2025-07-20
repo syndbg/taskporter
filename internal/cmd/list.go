@@ -46,6 +46,7 @@ func runListCommand(verbose bool, outputFormat string, configPath string) error 
 
 	// Initialize project detector
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return fmt.Errorf("failed to detect project configuration: %w", err)
@@ -109,6 +110,7 @@ func runListCommand(verbose bool, outputFormat string, configPath string) error 
 		}
 
 		parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+
 		for _, configPath := range jetbrainsPaths {
 			if verbose {
 				fmt.Printf("   📄 %s\n", configPath)
@@ -168,6 +170,7 @@ func displayTasksText(tasks []*config.Task) error {
 	// Display VSCode tasks
 	if vscTasks := tasksByType[config.TypeVSCodeTask]; len(vscTasks) > 0 {
 		fmt.Printf("🔧 VSCode Tasks (%d):\n", len(vscTasks))
+
 		for _, task := range vscTasks {
 			fmt.Printf("  • %s", task.Name)
 			if task.Group != "" {
@@ -177,6 +180,7 @@ func displayTasksText(tasks []*config.Task) error {
 			if len(task.Args) > 0 {
 				fmt.Printf(" %v", task.Args)
 			}
+
 			fmt.Println()
 			if task.Description != "" {
 				fmt.Printf("    %s\n", task.Description)
@@ -188,11 +192,13 @@ func displayTasksText(tasks []*config.Task) error {
 	// Display VSCode launch configs
 	if vscLaunches := tasksByType[config.TypeVSCodeLaunch]; len(vscLaunches) > 0 {
 		fmt.Printf("🚀 VSCode Launch Configurations (%d):\n", len(vscLaunches))
+
 		for _, task := range vscLaunches {
 			fmt.Printf("  • %s", task.Name)
 			if task.Group != "" {
 				fmt.Printf(" [%s]", task.Group)
 			}
+
 			fmt.Printf(" - %s", task.Command)
 			if len(task.Args) > 0 {
 				fmt.Printf(" %v", task.Args)
@@ -208,6 +214,7 @@ func displayTasksText(tasks []*config.Task) error {
 	// Display JetBrains configs (when implemented)
 	if jbTasks := tasksByType[config.TypeJetBrains]; len(jbTasks) > 0 {
 		fmt.Printf("🧠 JetBrains Run Configurations (%d):\n", len(jbTasks))
+
 		for _, task := range jbTasks {
 			fmt.Printf("  • %s - %s %v\n", task.Name, task.Command, task.Args)
 		}

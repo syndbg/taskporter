@@ -54,11 +54,13 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 		if len(task.Env) > 0 {
 			fmt.Printf("🌐 Environment variables: %v\n", task.Env)
 		}
+
 		if tr.paranoidMode {
 			fmt.Printf("🛡️ Paranoid mode: Performing security validation...\n")
 		} else {
 			fmt.Printf("🤝 Trust mode: Executing user configuration as-is (like IDEs)\n")
 		}
+
 		fmt.Println("⚡ Starting execution...")
 		fmt.Println()
 	}
@@ -76,6 +78,7 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 
 	// Create the command with optional sanitization
 	var args []string
+
 	var err error
 
 	if tr.paranoidMode {
@@ -96,6 +99,7 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 			if err != nil {
 				return fmt.Errorf("failed to sanitize working directory for task '%s': %w", task.Name, err)
 			}
+
 			cmd.Dir = sanitizedCwd
 		} else {
 			cmd.Dir = task.Cwd // Use original path as-is
@@ -107,6 +111,7 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 	if err != nil {
 		return fmt.Errorf("failed to build environment for task '%s': %w", task.Name, err)
 	}
+
 	cmd.Env = env
 
 	// Set up input/output
@@ -208,6 +213,7 @@ func (tf *TaskFinder) FindTask(taskName string, tasks []*config.Task) (*config.T
 
 	// Case-insensitive match
 	taskNameLower := strings.ToLower(taskName)
+
 	for _, task := range tasks {
 		if strings.ToLower(task.Name) == taskNameLower {
 			return task, nil
@@ -231,6 +237,7 @@ func (tf *TaskFinder) FindTask(taskName string, tasks []*config.Task) (*config.T
 		for _, match := range matches {
 			names = append(names, match.Name)
 		}
+
 		return nil, fmt.Errorf("multiple tasks match '%s': %s", taskName, strings.Join(names, ", "))
 	}
 

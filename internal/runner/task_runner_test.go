@@ -40,10 +40,12 @@ func TestTaskRunner(t *testing.T) {
 
 				// Check that our task env vars are present (including PATH)
 				var foundDebug, foundNodeEnv, foundPath bool
+
 				for _, envVar := range env {
 					if envVar == "DEBUG=true" {
 						foundDebug = true
 					}
+
 					if envVar == "NODE_ENV=development" {
 						foundNodeEnv = true
 					}

@@ -16,6 +16,7 @@ import (
 
 func NewPortCommand(verbose *bool, configPath *string) *cobra.Command {
 	var fromFormat string
+
 	var toFormat string
 	var dryRun bool
 	var outputPath string
@@ -223,6 +224,7 @@ func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryR
 			if verbose {
 				fmt.Printf("⚠️  Warning: failed to parse %s: %v\n", configPath, err)
 			}
+
 			continue
 		}
 		allTasks = append(allTasks, task)
@@ -274,6 +276,7 @@ func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dry
 			if verbose {
 				fmt.Printf("⚠️  Warning: failed to parse %s: %v\n", configPath, err)
 			}
+
 			continue
 		}
 		allTasks = append(allTasks, task)

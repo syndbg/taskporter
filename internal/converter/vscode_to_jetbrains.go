@@ -203,6 +203,7 @@ func (c *VSCodeToJetBrainsConverter) extractMainClass(task *config.Task) string 
 			if i+1 < len(task.Args) {
 				i++ // Skip the classpath value
 			}
+
 			continue
 		}
 	}

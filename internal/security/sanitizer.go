@@ -189,6 +189,7 @@ func (s *Sanitizer) SanitizePath(path string) (string, error) {
 
 	// Convert to absolute path if it's relative
 	var absPath string
+
 	var err error
 
 	if filepath.IsAbs(cleanPath) {

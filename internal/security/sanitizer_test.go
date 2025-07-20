@@ -97,6 +97,7 @@ func TestSanitizer(t *testing.T) {
 			args := []string{"build", "", "--verbose", "", "main.go"}
 			result, err := sanitizer.SanitizeArgs(args)
 			require.NoError(t, err)
+
 			expected := []string{"build", "--verbose", "main.go"}
 			require.Equal(t, expected, result)
 		})
@@ -177,6 +178,7 @@ func TestSanitizer(t *testing.T) {
 		// Create a temporary directory for testing
 		tempDir, err := os.MkdirTemp("", "sanitizer_test")
 		require.NoError(t, err)
+
 		defer func() {
 			_ = os.RemoveAll(tempDir)
 		}()
@@ -288,6 +290,7 @@ func TestSanitizer(t *testing.T) {
 		// Create temporary files for testing
 		tempDir, err := os.MkdirTemp("", "sanitizer_config_test")
 		require.NoError(t, err)
+
 		defer func() {
 			_ = os.RemoveAll(tempDir)
 		}()
@@ -332,6 +335,7 @@ func TestSanitizer(t *testing.T) {
 	t.Run("ValidateOutputPath", func(t *testing.T) {
 		tempDir, err := os.MkdirTemp("", "sanitizer_output_test")
 		require.NoError(t, err)
+
 		defer func() {
 			_ = os.RemoveAll(tempDir)
 		}()

@@ -385,7 +385,9 @@ func (c *VSCodeLaunchToJetBrainsConverter) convertVSCodeVariables(input string) 
 func (c *VSCodeLaunchToJetBrainsConverter) sanitizeFilename(name string) string {
 	// Replace invalid filename characters with underscores
 	invalidChars := []string{"/", "\\", ":", "*", "?", "\"", "<", ">", "|", " "}
+
 	result := name
+
 	for _, char := range invalidChars {
 		result = strings.ReplaceAll(result, char, "_")
 	}

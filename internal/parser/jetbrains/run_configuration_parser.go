@@ -155,6 +155,7 @@ func (p *RunConfigurationParser) handleGradleConfig(jetbrainsConfig JetBrainsRun
 	var scriptParameters string
 
 	// Parse external system settings
+
 	for _, option := range jetbrainsConfig.ExternalSystemSettings.Options {
 		switch option.Name {
 		case "taskNames":

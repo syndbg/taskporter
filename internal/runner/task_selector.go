@@ -76,6 +76,7 @@ func (m *TaskSelectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
 		return m, nil
 
 	case tea.KeyMsg:
@@ -182,6 +183,7 @@ func getTaskType(task config.Task) string {
 	if task.Group != "" {
 		return task.Group
 	}
+
 	switch task.Source {
 	case "vscode-launch":
 		return "launch"
@@ -203,5 +205,6 @@ func RunInteractiveTaskSelector(tasks []config.Task) (*config.Task, error) {
 	}
 
 	selectorModel := finalModel.(*TaskSelectorModel)
+
 	return selectorModel.selected, nil
 }
