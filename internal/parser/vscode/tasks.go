@@ -75,6 +75,7 @@ func (p *TasksParser) ParseTasks(tasksFilePath string) ([]*config.Task, error) {
 	}
 
 	var tasks []*config.Task
+
 	for _, vscodeTask := range taskFile.Tasks {
 		task, err := p.convertTask(vscodeTask, tasksFilePath)
 		if err != nil {
@@ -82,6 +83,7 @@ func (p *TasksParser) ParseTasks(tasksFilePath string) ([]*config.Task, error) {
 			fmt.Printf("Warning: failed to convert task %s: %v\n", vscodeTask.Label, err)
 			continue
 		}
+
 		tasks = append(tasks, task)
 	}
 
@@ -107,6 +109,7 @@ func (p *TasksParser) convertTask(vscodeTask VSCodeTask, sourceFile string) (*co
 		if vscodeTask.Options.Cwd != "" {
 			task.Cwd = p.resolveWorkspacePath(vscodeTask.Options.Cwd)
 		}
+
 		if vscodeTask.Options.Env != nil {
 			task.Env = make(map[string]string)
 			for k, v := range vscodeTask.Options.Env {

@@ -58,6 +58,7 @@ func (pd *ProjectDetector) GetVSCodeTasksPath() string {
 	if pd.fileExists(path) {
 		return path
 	}
+
 	return ""
 }
 
@@ -67,12 +68,14 @@ func (pd *ProjectDetector) GetVSCodeLaunchPath() string {
 	if pd.fileExists(path) {
 		return path
 	}
+
 	return ""
 }
 
 // GetJetBrainsRunConfigPaths returns paths to all JetBrains run configuration files
 func (pd *ProjectDetector) GetJetBrainsRunConfigPaths() []string {
 	var paths []string
+
 	runConfigsDir := filepath.Join(pd.projectRoot, ".idea", "runConfigurations")
 
 	if !pd.dirExists(runConfigsDir) {

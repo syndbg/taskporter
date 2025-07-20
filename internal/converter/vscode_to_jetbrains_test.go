@@ -330,6 +330,7 @@ func validateJavaCompileXML(t *testing.T, filename string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -362,6 +363,7 @@ func validateJavaRunXML(t *testing.T, filename string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -380,6 +382,7 @@ func validateGradleXML(t *testing.T, filename string, expectedTaskName string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -397,6 +400,7 @@ func validateNodeJSXML(t *testing.T, filename string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -420,6 +424,7 @@ func validatePythonXML(t *testing.T, filename string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -439,6 +444,7 @@ func validateMavenXML(t *testing.T, filename string, expectedGoals string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -456,6 +462,7 @@ func validateEdgeCaseXML(t *testing.T, filename string, originalTaskName string)
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -473,6 +480,7 @@ func validateComplexGradleXML(t *testing.T, filename string) {
 	require.NoError(t, err)
 
 	var component JetBrainsComponent
+
 	err = xml.Unmarshal(xmlData, &component)
 	require.NoError(t, err)
 
@@ -507,6 +515,7 @@ func findOption(options []JetBrainsOption, name string) *JetBrainsOption {
 			return &option
 		}
 	}
+
 	return nil
 }
 
@@ -516,5 +525,6 @@ func findEnvVar(envVars []JetBrainsEnvVar, name string) *JetBrainsEnvVar {
 			return &envVar
 		}
 	}
+
 	return nil
 }

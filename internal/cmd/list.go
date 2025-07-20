@@ -68,6 +68,7 @@ func runListCommand(verbose bool, outputFormat string, configPath string) error 
 			}
 
 			parser := vscode.NewTasksParser(projectConfig.ProjectRoot)
+
 			tasks, err := parser.ParseTasks(tasksPath)
 			if err != nil {
 				if verbose {
@@ -88,6 +89,7 @@ func runListCommand(verbose bool, outputFormat string, configPath string) error 
 			}
 
 			launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+
 			launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
 			if err != nil {
 				if verbose {
@@ -128,11 +130,13 @@ func runListCommand(verbose bool, outputFormat string, configPath string) error 
 
 		if verbose && len(jetbrainsPaths) > 0 {
 			jetbrainsTaskCount := 0
+
 			for _, task := range allTasks {
 				if task.Type == config.TypeJetBrains {
 					jetbrainsTaskCount++
 				}
 			}
+
 			fmt.Printf("✅ Found %d JetBrains configurations\n", jetbrainsTaskCount)
 		}
 	}
@@ -145,6 +149,7 @@ func displayTasks(tasks []*config.Task, outputFormat string) error {
 	if outputFormat == "json" {
 		return displayTasksJSON(tasks)
 	}
+
 	return displayTasksText(tasks)
 }
 
@@ -158,6 +163,7 @@ func displayTasksText(tasks []*config.Task) error {
 		fmt.Println("  • .idea/runConfigurations/*.xml")
 		fmt.Println()
 		fmt.Println("📡 Strand connection pending... no active configurations detected.")
+
 		return nil
 	}
 
@@ -173,19 +179,24 @@ func displayTasksText(tasks []*config.Task) error {
 
 		for _, task := range vscTasks {
 			fmt.Printf("  • %s", task.Name)
+
 			if task.Group != "" {
 				fmt.Printf(" [%s]", task.Group)
 			}
+
 			fmt.Printf(" - %s", task.Command)
+
 			if len(task.Args) > 0 {
 				fmt.Printf(" %v", task.Args)
 			}
 
 			fmt.Println()
+
 			if task.Description != "" {
 				fmt.Printf("    %s\n", task.Description)
 			}
 		}
+
 		fmt.Println()
 	}
 
@@ -195,19 +206,24 @@ func displayTasksText(tasks []*config.Task) error {
 
 		for _, task := range vscLaunches {
 			fmt.Printf("  • %s", task.Name)
+
 			if task.Group != "" {
 				fmt.Printf(" [%s]", task.Group)
 			}
 
 			fmt.Printf(" - %s", task.Command)
+
 			if len(task.Args) > 0 {
 				fmt.Printf(" %v", task.Args)
 			}
+
 			fmt.Println()
+
 			if task.Description != "" {
 				fmt.Printf("    %s\n", task.Description)
 			}
 		}
+
 		fmt.Println()
 	}
 
@@ -218,10 +234,12 @@ func displayTasksText(tasks []*config.Task) error {
 		for _, task := range jbTasks {
 			fmt.Printf("  • %s - %s %v\n", task.Name, task.Command, task.Args)
 		}
+
 		fmt.Println()
 	}
 
 	fmt.Println("📡 Strand established! Use 'taskporter run <task-name>' to execute.")
+
 	return nil
 }
 
@@ -233,5 +251,6 @@ func displayTasksJSON(tasks []*config.Task) error {
 
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
+
 	return encoder.Encode(output)
 }

@@ -21,6 +21,7 @@ func getAllTasksQuiet() ([]*config.Task, error) {
 
 	// Initialize project detector
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return nil, err
@@ -32,6 +33,7 @@ func getAllTasksQuiet() ([]*config.Task, error) {
 	if projectConfig.HasVSCode {
 		if tasksPath := detector.GetVSCodeTasksPath(); tasksPath != "" {
 			parser := vscode.NewTasksParser(projectConfig.ProjectRoot)
+
 			tasks, err := parser.ParseTasks(tasksPath)
 			if err == nil {
 				allTasks = append(allTasks, tasks...)
@@ -41,6 +43,7 @@ func getAllTasksQuiet() ([]*config.Task, error) {
 		// Parse VSCode launch configurations
 		if launchPath := detector.GetVSCodeLaunchPath(); launchPath != "" {
 			launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+
 			launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
 			if err == nil {
 				allTasks = append(allTasks, launchTasks...)
@@ -87,8 +90,10 @@ func validTaskNames(cmd *cobra.Command, args []string, toComplete string) ([]str
 }
 
 func NewRunCommand(verbose *bool, configPath *string) *cobra.Command {
-	var noInteractive bool
-	var paranoidMode bool
+	var (
+		noInteractive bool
+		paranoidMode  bool
+	)
 
 	runCmd := &cobra.Command{
 		Use:   "run [task-name]",
@@ -124,6 +129,7 @@ Preparing to establish execution strand...`,
 
 	runCmd.Flags().BoolVar(&noInteractive, "no-interactive", false, "Disable interactive mode (useful for CI/CD)")
 	runCmd.Flags().BoolVar(&paranoidMode, "paranoid-mode", false, "Enable security validation (default: trust user configurations)")
+
 	return runCmd
 }
 
@@ -154,6 +160,7 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 
 	// Initialize project detector and find all tasks
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return fmt.Errorf("failed to detect project configuration: %w", err)
@@ -173,6 +180,7 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 			}
 
 			parser := vscode.NewTasksParser(projectConfig.ProjectRoot)
+
 			tasks, err := parser.ParseTasks(tasksPath)
 			if err != nil {
 				if verbose {
@@ -190,6 +198,7 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 			}
 
 			launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+
 			launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
 			if err != nil {
 				if verbose {
@@ -226,6 +235,7 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 		fmt.Println()
 		fmt.Println("Use 'taskporter list' to see available tasks and launch configurations.")
 		fmt.Println("📡 Strand connection failed... no active configurations detected.")
+
 		return nil
 	}
 
@@ -241,34 +251,42 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 			fmt.Println("❌ No task name provided and interactive mode is disabled.")
 			fmt.Println()
 			fmt.Println("Available tasks:")
+
 			for _, taskPtr := range allTasks {
 				fmt.Printf("  • %s", taskPtr.Name)
+
 				if taskPtr.Group != "" {
 					fmt.Printf(" [%s]", taskPtr.Group)
 				}
+
 				fmt.Printf(" - %s", getTaskSourceDisplay(taskPtr))
 				fmt.Println()
 			}
+
 			fmt.Println()
 			fmt.Println("Usage: taskporter run <task-name>")
 			fmt.Println("   or: taskporter run (for interactive mode)")
 			fmt.Println("📡 Strand connection failed... no task specified.")
+
 			return nil
 		}
 
 		if verbose {
 			fmt.Printf("🎮 Starting interactive task selector...\n")
 		}
+
 		selectedTask, err := runner.RunInteractiveTaskSelector(tasks)
 		if err != nil {
 			return fmt.Errorf("interactive selection failed: %w", err)
 		}
+
 		if selectedTask == nil {
 			// User cancelled
 			return nil
 		}
 		// Use the selected task
 		task := selectedTask
+
 		return executeSelectedTask(task, allTasks, projectConfig, detector, verbose, paranoidMode)
 	}
 
@@ -278,20 +296,26 @@ func runTaskCommand(taskName string, verbose bool, configPath string, noInteract
 
 	// Find the requested task
 	finder := runner.NewTaskFinder()
+
 	task, err := finder.FindTask(taskName, allTasks)
 	if err != nil {
 		fmt.Printf("❌ %v\n", err)
 		fmt.Println()
 		fmt.Println("Available tasks:")
+
 		for _, t := range allTasks {
 			fmt.Printf("  • %s", t.Name)
+
 			if t.Group != "" {
 				fmt.Printf(" [%s]", t.Group)
 			}
+
 			fmt.Println()
 		}
+
 		fmt.Println()
 		fmt.Println("📡 Strand connection failed... task not in network.")
+
 		return nil
 	}
 
@@ -337,11 +361,13 @@ func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectC
 
 	// Create launch parser to get preLaunchTask name
 	launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+
 	preLaunchTaskName, err := launchParser.GetPreLaunchTask(launchPath, launchTask.Name)
 	if err != nil {
 		if verbose {
 			fmt.Printf("⚠️  Warning: failed to get preLaunchTask for %s: %v\n", launchTask.Name, err)
 		}
+
 		return nil // Continue without preLaunchTask
 	}
 

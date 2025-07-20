@@ -50,12 +50,14 @@ func (c *VSCodeToJetBrainsConverter) ConvertTasks(tasks []*config.Task, dryRun b
 	}
 
 	convertedCount := 0
+
 	for _, task := range tasks {
 		// Only convert VSCode tasks (not launch configs)
 		if !strings.HasPrefix(string(task.Type), "vscode-task") {
 			if c.verbose {
 				fmt.Printf("⏭️  Skipping non-VSCode task: %s (type: %s)\n", task.Name, string(task.Type))
 			}
+
 			continue
 		}
 
@@ -108,6 +110,7 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 	switch config.Type {
 	case "Application":
 		mainClass := c.extractMainClass(task)
+
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "MAIN_CLASS_NAME",
 			Value: mainClass,
@@ -134,6 +137,7 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 		if len(task.Args) > 0 {
 			scriptText += " " + strings.Join(task.Args, " ")
 		}
+
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "SCRIPT_TEXT",
 			Value: scriptText,
@@ -147,6 +151,7 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 	} else {
 		workingDir = c.convertVSCodeVariables(workingDir)
 	}
+
 	config.Options = append(config.Options, JetBrainsOption{
 		Name:  "WORKING_DIRECTORY",
 		Value: workingDir,
@@ -161,6 +166,7 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 				Value: c.convertVSCodeVariables(value),
 			})
 		}
+
 		config.EnvVars = &JetBrainsEnvVars{
 			EnvVars: envVars,
 		}
@@ -198,6 +204,7 @@ func (c *VSCodeToJetBrainsConverter) extractMainClass(task *config.Task) string 
 			// Likely a class name
 			return arg
 		}
+
 		if arg == "-cp" || arg == "--class-path" {
 			// Skip classpath argument and its value
 			if i+1 < len(task.Args) {

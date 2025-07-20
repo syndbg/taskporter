@@ -49,6 +49,7 @@ func TestTaskRunner(t *testing.T) {
 					if envVar == "NODE_ENV=development" {
 						foundNodeEnv = true
 					}
+
 					if envVar == "PATH=/custom/bin:$PATH" {
 						foundPath = true
 					}

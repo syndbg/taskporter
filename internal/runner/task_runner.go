@@ -51,6 +51,7 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 		fmt.Printf("📋 Type: %s\n", task.Type)
 		fmt.Printf("💻 Command: %s %v\n", task.Command, task.Args)
 		fmt.Printf("📁 Working directory: %s\n", task.Cwd)
+
 		if len(task.Env) > 0 {
 			fmt.Printf("🌐 Environment variables: %v\n", task.Env)
 		}
@@ -222,6 +223,7 @@ func (tf *TaskFinder) FindTask(taskName string, tasks []*config.Task) (*config.T
 
 	// Partial match (if unique)
 	var matches []*config.Task
+
 	for _, task := range tasks {
 		if strings.Contains(strings.ToLower(task.Name), taskNameLower) {
 			matches = append(matches, task)

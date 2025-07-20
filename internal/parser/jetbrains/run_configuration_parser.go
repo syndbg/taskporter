@@ -79,13 +79,16 @@ func (p *RunConfigurationParser) handleApplicationConfig(jetbrainsConfig JetBrai
 	task.Command = "java"
 	task.Group = "run"
 
-	var mainClass string
-	var vmParameters string
-	var programParameters string
-	var workingDirectory string
-	var envVars map[string]string
+	var (
+		mainClass         string
+		vmParameters      string
+		programParameters string
+		workingDirectory  string
+		envVars           map[string]string
+	)
 
 	// Parse options
+
 	for _, option := range jetbrainsConfig.Options {
 		switch option.Name {
 		case "MAIN_CLASS_NAME":
@@ -119,6 +122,7 @@ func (p *RunConfigurationParser) handleApplicationConfig(jetbrainsConfig JetBrai
 	if mainClass == "" {
 		return fmt.Errorf("MAIN_CLASS_NAME is required for Application configuration")
 	}
+
 	args = append(args, mainClass)
 
 	// Add program parameters
@@ -151,8 +155,10 @@ func (p *RunConfigurationParser) handleGradleConfig(jetbrainsConfig JetBrainsRun
 		return fmt.Errorf("ExternalSystemSettings is required for Gradle configuration")
 	}
 
-	var taskNames []string
-	var scriptParameters string
+	var (
+		taskNames        []string
+		scriptParameters string
+	)
 
 	// Parse external system settings
 
@@ -171,6 +177,7 @@ func (p *RunConfigurationParser) handleGradleConfig(jetbrainsConfig JetBrainsRun
 
 	// Build command arguments
 	var args []string
+
 	args = append(args, taskNames...)
 
 	// Add script parameters
@@ -191,10 +198,12 @@ func (p *RunConfigurationParser) parseParameters(params string) []string {
 	}
 
 	// Parse parameters with quoted string support
-	var args []string
-	var current strings.Builder
-	var inQuote bool
-	var quoteChar rune
+	var (
+		args      []string
+		current   strings.Builder
+		inQuote   bool
+		quoteChar rune
+	)
 
 	for _, char := range params {
 		switch {

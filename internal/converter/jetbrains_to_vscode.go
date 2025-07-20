@@ -84,6 +84,7 @@ func (c *JetBrainsToVSCodeConverter) ConvertTasks(tasks []*config.Task, dryRun b
 			fmt.Printf("⚠️  Warning: failed to convert task '%s': %v\n", task.Name, err)
 			continue
 		}
+
 		vscodeTasksFile.Tasks = append(vscodeTasksFile.Tasks, *vscodeTask)
 	}
 
@@ -120,6 +121,7 @@ func (c *JetBrainsToVSCodeConverter) ConvertTasks(tasks []*config.Task, dryRun b
 	}
 
 	fmt.Printf("✅ Successfully converted %d/%d JetBrains configurations\n", len(vscodeTasksFile.Tasks), len(jetBrainsTasks))
+
 	return nil
 }
 
@@ -140,6 +142,7 @@ func (c *JetBrainsToVSCodeConverter) convertSingleTask(task *config.Task) (*VSCo
 		if vscodeTask.Options == nil {
 			vscodeTask.Options = &VSCodeTaskOptions{}
 		}
+
 		vscodeTask.Options.Cwd = c.convertJetBrainsVariables(task.Cwd)
 	}
 
@@ -148,6 +151,7 @@ func (c *JetBrainsToVSCodeConverter) convertSingleTask(task *config.Task) (*VSCo
 		if vscodeTask.Options == nil {
 			vscodeTask.Options = &VSCodeTaskOptions{}
 		}
+
 		vscodeTask.Options.Env = make(map[string]string)
 		for key, value := range task.Env {
 			vscodeTask.Options.Env[key] = c.convertJetBrainsVariables(value)
@@ -175,6 +179,7 @@ func (c *JetBrainsToVSCodeConverter) determineVSCodeTaskDetails(task *config.Tas
 	if len(parts) > 1 {
 		allArgs = append(allArgs, parts[1:]...)
 	}
+
 	allArgs = append(allArgs, task.Args...)
 
 	if len(allArgs) > 0 {

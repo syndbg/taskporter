@@ -67,6 +67,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) ConvertLaunchConfigs(tasks []*config.
 	}
 
 	convertedCount := 0
+
 	for _, task := range launchTasks {
 		config, err := c.convertSingleLaunchConfig(task)
 		if err != nil {
@@ -99,6 +100,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) ConvertLaunchConfigs(tasks []*config.
 	}
 
 	fmt.Printf("✅ Successfully converted %d/%d VSCode launch configurations\n", convertedCount, len(launchTasks))
+
 	return nil
 }
 
@@ -129,6 +131,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) convertSingleLaunchConfig(task *confi
 	} else {
 		workingDir = c.convertVSCodeVariables(workingDir)
 	}
+
 	config.Options = append(config.Options, JetBrainsOption{
 		Name:  "WORKING_DIRECTORY",
 		Value: workingDir,
@@ -143,6 +146,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) convertSingleLaunchConfig(task *confi
 				Value: c.convertVSCodeVariables(value),
 			})
 		}
+
 		config.EnvVars = &JetBrainsEnvVars{EnvVars: envVars}
 	}
 
@@ -273,13 +277,16 @@ func (c *VSCodeLaunchToJetBrainsConverter) addGenericOptions(task *config.Task, 
 	// Add arguments
 	if len(task.Args) > 0 {
 		existing := ""
+
 		for i, opt := range config.Options {
 			if opt.Name == "PROGRAM_PARAMETERS" {
 				existing = opt.Value
 				config.Options[i].Value = existing + " " + strings.Join(task.Args, " ")
+
 				return nil
 			}
 		}
+
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "PROGRAM_PARAMETERS",
 			Value: strings.Join(task.Args, " "),
@@ -358,11 +365,13 @@ func (c *VSCodeLaunchToJetBrainsConverter) extractProgramFromLaunch(task *config
 // filterArgsExcluding filters out specific values from args
 func (c *VSCodeLaunchToJetBrainsConverter) filterArgsExcluding(args []string, exclude string) []string {
 	var filtered []string
+
 	for _, arg := range args {
 		if arg != exclude {
 			filtered = append(filtered, arg)
 		}
 	}
+
 	return filtered
 }
 
@@ -391,6 +400,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) sanitizeFilename(name string) string 
 	for _, char := range invalidChars {
 		result = strings.ReplaceAll(result, char, "_")
 	}
+
 	return result
 }
 

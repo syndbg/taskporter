@@ -68,6 +68,7 @@ func TestTasksParser(t *testing.T) {
 
 			// Find specific tasks and verify their properties
 			var buildTask, runDevTask *config.Task
+
 			for _, task := range tasks {
 				switch task.Name {
 				case "build":

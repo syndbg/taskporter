@@ -99,6 +99,7 @@ func (m *TaskSelectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if len(m.tasks) > 0 {
 				m.selected = &m.tasks[m.cursor]
 				m.quitting = true
+
 				return m, tea.Quit
 			}
 		}
@@ -113,6 +114,7 @@ func (m *TaskSelectorModel) View() string {
 		if m.selected != nil {
 			return fmt.Sprintf("🎯 Strand established! Running task: %s\n", m.selected.Name)
 		}
+
 		return "👋 Porter mission cancelled. Until next time!\n"
 	}
 

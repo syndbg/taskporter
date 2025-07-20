@@ -7,9 +7,11 @@ import (
 // NewRootCommand creates and configures the root command with all subcommands
 func NewRootCommand() *cobra.Command {
 	// Local variables for flags - no globals!
-	var verbose bool
-	var configPath string
-	var outputFormat string
+	var (
+		verbose      bool
+		configPath   string
+		outputFormat string
+	)
 
 	rootCmd := &cobra.Command{
 		Use:   "taskporter",

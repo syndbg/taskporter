@@ -229,6 +229,7 @@ func TestSanitizer(t *testing.T) {
 			relativePath := "src/main.go"
 			result, err := sanitizer.SanitizePath(relativePath)
 			require.NoError(t, err)
+
 			expectedPath := filepath.Join(tempDir, relativePath)
 			require.Equal(t, expectedPath, result)
 		})
@@ -280,6 +281,7 @@ func TestSanitizer(t *testing.T) {
 			for i := range longName {
 				longName = longName[:i] + "a" + longName[i+1:]
 			}
+
 			err := sanitizer.ValidateTaskName(longName)
 			require.Error(t, err)
 			require.Contains(t, err.Error(), "too long")

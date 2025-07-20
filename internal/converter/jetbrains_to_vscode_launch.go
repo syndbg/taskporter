@@ -63,6 +63,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) ConvertToLaunch(tasks []*config.Task,
 	if len(jetBrainsTasks) == 0 {
 		fmt.Printf("⚠️  No JetBrains configurations suitable for launch conversion found\n")
 		fmt.Printf("💡 Note: Only Application-type JetBrains configs can be converted to launch configurations\n")
+
 		return nil
 	}
 
@@ -82,6 +83,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) ConvertToLaunch(tasks []*config.Task,
 			fmt.Printf("⚠️  Warning: failed to convert task '%s': %v\n", task.Name, err)
 			continue
 		}
+
 		launchFile.Configurations = append(launchFile.Configurations, *launchConfig)
 	}
 
@@ -118,6 +120,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) ConvertToLaunch(tasks []*config.Task,
 	}
 
 	fmt.Printf("✅ Successfully converted %d/%d JetBrains configurations to launch configs\n", len(launchFile.Configurations), len(jetBrainsTasks))
+
 	return nil
 }
 
@@ -176,6 +179,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if mainClass == "" {
 			return fmt.Errorf("could not determine main class for Java application '%s'", task.Name)
 		}
+
 		launchConfig.MainClass = mainClass
 
 		// Add program arguments (excluding main class)
@@ -183,7 +187,6 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if len(args) > 0 {
 			launchConfig.Args = args
 		}
-
 	} else if strings.Contains(command, "node") {
 		// Node.js application
 		launchConfig.Type = "node"
@@ -193,6 +196,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if program == "" {
 			return fmt.Errorf("could not determine program for Node.js application '%s'", task.Name)
 		}
+
 		launchConfig.Program = c.convertJetBrainsVariables(program)
 
 		// Add arguments
@@ -200,7 +204,6 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if len(args) > 0 {
 			launchConfig.Args = args
 		}
-
 	} else if strings.Contains(command, "python") {
 		// Python application
 		launchConfig.Type = "python"
@@ -210,6 +213,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if program == "" {
 			return fmt.Errorf("could not determine program for Python application '%s'", task.Name)
 		}
+
 		launchConfig.Program = c.convertJetBrainsVariables(program)
 
 		// Add arguments
@@ -217,7 +221,6 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		if len(args) > 0 {
 			launchConfig.Args = args
 		}
-
 	} else {
 		// Generic external tool - use node as fallback
 		launchConfig.Type = "node"
@@ -303,14 +306,17 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractNodeArgs(task *config.Task) []
 	// Extract args from command (skip 'node' and program file)
 	parts := strings.Fields(task.Command)
 	foundProgram := false
+
 	for i, part := range parts {
 		if i == 0 { // skip 'node'
 			continue
 		}
+
 		if !foundProgram && (strings.HasSuffix(part, ".js") || strings.HasSuffix(part, ".ts")) {
 			foundProgram = true
 			continue
 		}
+
 		if foundProgram {
 			args = append(args, part)
 		}
@@ -351,14 +357,17 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractPythonArgs(task *config.Task) 
 	// Extract args from command (skip 'python' and program file)
 	parts := strings.Fields(task.Command)
 	foundProgram := false
+
 	for i, part := range parts {
 		if i == 0 { // skip 'python'
 			continue
 		}
+
 		if !foundProgram && strings.HasSuffix(part, ".py") {
 			foundProgram = true
 			continue
 		}
+
 		if foundProgram {
 			args = append(args, part)
 		}

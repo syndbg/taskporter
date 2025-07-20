@@ -66,6 +66,7 @@ func TestLaunchParser(t *testing.T) {
 
 			// Find specific configs and verify their properties
 			var launchTaskporter, debugPort *config.Task
+
 			for _, task := range tasks {
 				switch task.Name {
 				case "Launch taskporter":

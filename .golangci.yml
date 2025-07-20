@@ -5,6 +5,7 @@ run:
   go: '1.24.5'
 
 linters:
+  default: standard
   enable:
     - wsl_v5
   settings:

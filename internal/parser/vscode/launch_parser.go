@@ -35,6 +35,7 @@ func (p *LaunchParser) ParseLaunchConfigs(launchFilePath string) ([]*config.Task
 	}
 
 	var tasks []*config.Task
+
 	for _, vscodeConfig := range launchFile.Configurations {
 		task, err := p.convertLaunchConfig(vscodeConfig, launchFilePath)
 		if err != nil {
@@ -42,6 +43,7 @@ func (p *LaunchParser) ParseLaunchConfigs(launchFilePath string) ([]*config.Task
 			fmt.Printf("Warning: failed to convert launch config %s: %v\n", vscodeConfig.Name, err)
 			continue
 		}
+
 		tasks = append(tasks, task)
 	}
 

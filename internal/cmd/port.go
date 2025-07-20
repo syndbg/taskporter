@@ -17,10 +17,12 @@ import (
 func NewPortCommand(verbose *bool, configPath *string) *cobra.Command {
 	var fromFormat string
 
-	var toFormat string
-	var dryRun bool
-	var outputPath string
-	var paranoidMode bool
+	var (
+		toFormat     string
+		dryRun       bool
+		outputPath   string
+		paranoidMode bool
+	)
 
 	portCmd := &cobra.Command{
 		Use:   "port",
@@ -103,14 +105,17 @@ func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string
 		fmt.Printf("🚛 Preparing to port configurations...\n")
 		fmt.Printf("📤 From: %s\n", fromFormat)
 		fmt.Printf("📥 To: %s\n", toFormat)
+
 		if dryRun {
 			fmt.Printf("🔍 Mode: Dry run (preview only)\n")
 		}
+
 		if paranoidMode {
 			fmt.Printf("🛡️ Paranoid mode: Security validation enabled\n")
 		} else {
 			fmt.Printf("🤝 Trust mode: Processing configurations as-is\n")
 		}
+
 		fmt.Println()
 	}
 
@@ -153,6 +158,7 @@ func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string
 func convertVSCodeTasksToJetBrains(projectRoot, outputPath string, verbose, dryRun bool) error {
 	// Initialize project detector
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return fmt.Errorf("failed to detect project configuration: %w", err)
@@ -173,6 +179,7 @@ func convertVSCodeTasksToJetBrains(projectRoot, outputPath string, verbose, dryR
 	}
 
 	parser := vscode.NewTasksParser(projectConfig.ProjectRoot)
+
 	tasks, err := parser.ParseTasks(tasksPath)
 	if err != nil {
 		return fmt.Errorf("failed to parse VSCode tasks: %w", err)
@@ -189,6 +196,7 @@ func convertVSCodeTasksToJetBrains(projectRoot, outputPath string, verbose, dryR
 
 	// Create converter and perform conversion
 	conv := converter.NewVSCodeToJetBrainsConverter(projectRoot, outputPath, verbose)
+
 	return conv.ConvertTasks(tasks, dryRun)
 }
 
@@ -196,6 +204,7 @@ func convertVSCodeTasksToJetBrains(projectRoot, outputPath string, verbose, dryR
 func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryRun bool) error {
 	// Initialize project detector
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return fmt.Errorf("failed to detect project configuration: %w", err)
@@ -216,6 +225,7 @@ func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryR
 	}
 
 	parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+
 	var allTasks []*config.Task
 
 	for _, configPath := range jetbrainsPaths {
@@ -227,6 +237,7 @@ func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryR
 
 			continue
 		}
+
 		allTasks = append(allTasks, task)
 	}
 
@@ -241,6 +252,7 @@ func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryR
 
 	// Create converter and perform conversion
 	conv := converter.NewJetBrainsToVSCodeConverter(projectRoot, outputPath, verbose)
+
 	return conv.ConvertTasks(allTasks, dryRun)
 }
 
@@ -248,6 +260,7 @@ func convertJetBrainsToVSCodeTasks(projectRoot, outputPath string, verbose, dryR
 func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dryRun bool) error {
 	// Initialize project detector
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return fmt.Errorf("failed to detect project configuration: %w", err)
@@ -268,6 +281,7 @@ func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dry
 	}
 
 	parser := jetbrains.NewRunConfigurationParser(projectConfig.ProjectRoot)
+
 	var allTasks []*config.Task
 
 	for _, configPath := range jetbrainsPaths {
@@ -279,6 +293,7 @@ func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dry
 
 			continue
 		}
+
 		allTasks = append(allTasks, task)
 	}
 
@@ -293,6 +308,7 @@ func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dry
 
 	// Create converter and perform conversion
 	conv := converter.NewJetBrainsToVSCodeLaunchConverter(projectRoot, outputPath, verbose)
+
 	return conv.ConvertToLaunch(allTasks, dryRun)
 }
 
@@ -300,6 +316,7 @@ func convertJetBrainsToVSCodeLaunch(projectRoot, outputPath string, verbose, dry
 func convertVSCodeLaunchToJetBrains(projectRoot, outputPath string, verbose, dryRun bool) error {
 	// Initialize project detector
 	detector := config.NewProjectDetector(projectRoot)
+
 	projectConfig, err := detector.DetectProject()
 	if err != nil {
 		return fmt.Errorf("failed to detect project configuration: %w", err)
@@ -320,6 +337,7 @@ func convertVSCodeLaunchToJetBrains(projectRoot, outputPath string, verbose, dry
 	}
 
 	launchParser := vscode.NewLaunchParser(projectConfig.ProjectRoot)
+
 	launchTasks, err := launchParser.ParseLaunchConfigs(launchPath)
 	if err != nil {
 		return fmt.Errorf("failed to parse VSCode launch configs: %w", err)
@@ -336,6 +354,7 @@ func convertVSCodeLaunchToJetBrains(projectRoot, outputPath string, verbose, dry
 
 	// Create converter and perform conversion
 	conv := converter.NewVSCodeLaunchToJetBrainsConverter(projectRoot, outputPath, verbose)
+
 	return conv.ConvertLaunchConfigs(launchTasks, dryRun)
 }
 
