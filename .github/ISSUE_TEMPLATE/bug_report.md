@@ -23,7 +23,7 @@ A clear and concise description of what actually happened.
 ## 📋 Environment
 - OS: [e.g. macOS, Linux, Windows]
 - Taskporter Version: [e.g. v1.0.0]
-- Go Version: [e.g. 1.21.0]
+- Go Version: [e.g. 1.24.5]
 - IDE: [e.g. VSCode, IntelliJ IDEA]
 
 ## 📁 Configuration Files

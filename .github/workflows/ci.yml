@@ -17,7 +17,8 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21'
+        go-version: '1.24.5'
+        check-latest: true
 
     - name: Cache Go modules
       uses: actions/cache@v3
@@ -30,13 +31,28 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
+    - name: Verify dependencies
+      run: go mod verify
+
     - name: Run tests
       run: go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Generate coverage report
+      run: go tool cover -html=coverage.out -o coverage.html
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.out
+        fail_ci_if_error: false
+
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: |
+          coverage.out
+          coverage.html
 
   lint:
     runs-on: ubuntu-latest
@@ -46,18 +62,41 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21'
+        go-version: '1.24.5'
+        check-latest: true
 
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v3
       with:
         version: latest
+        args: --timeout=5m
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.5'
+
+    - name: Run Gosec Security Scanner
+      run: |
+        go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+        gosec ./...
+
+    - name: Run govulncheck
+      run: |
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        govulncheck ./...
 
   build:
     needs: [test, lint]
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        go-version: ['1.24.5']
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -65,15 +104,29 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21'
+        go-version: ${{ matrix.go-version }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
 
     - name: Build
       run: go build -v ./...
 
+    - name: Test build artifacts
+      run: |
+        go build -o taskporter-${{ matrix.os }}-${{ matrix.go-version }} .
+        ./taskporter-${{ matrix.os }}-${{ matrix.go-version }} --version || true
+
   release:
     if: github.event_name == 'release'
-    needs: [test, lint, build]
+    needs: [test, lint, security, build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
     - uses: actions/checkout@v4
       with:
@@ -82,7 +135,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21'
+        go-version: '1.24.5'
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v5

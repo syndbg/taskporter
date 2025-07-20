@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-- **Go 1.21+** - Taskporter is built with Go
+- **Go 1.24.5+** - Taskporter is built with Go
 - **Make** - For build automation
 - **Git** - For version control
 

@@ -44,14 +44,36 @@ snapshot:
 
 changelog:
   sort: asc
+  use: github
   filters:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+
+brews:
+  - name: taskporter
+    homepage: "https://github.com/syndbg/taskporter"
+    description: "Cross-Editor CLI Task Bridge - Bridge and execute tasks from various code editors"
+    license: MIT
+    repository:
+      owner: syndbg
+      name: homebrew-taskporter
+    test: |
+      system "#{bin}/taskporter --version"
 
 release:
-  github:
-    owner: anton-antonov
-    name: taskporter
   draft: false
   prerelease: auto
+  name_template: "v{{.Version}}"
