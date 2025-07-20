@@ -30,11 +30,10 @@ func TestLaunchParser(t *testing.T) {
 
 			// Verify we have the expected launch configs from our testdata
 			expectedConfigs := map[string]bool{
-				"Launch taskporter":      false,
-				"Debug taskporter list":  false,
-				"Debug taskporter run":   false,
-				"Launch Node.js Example": false,
-				"Python Script Debug":    false,
+				"Launch taskporter":     false,
+				"Debug taskporter list": false,
+				"Debug taskporter run":  false,
+				"Debug taskporter port": false,
 			}
 
 			for _, task := range tasks {
@@ -66,13 +65,13 @@ func TestLaunchParser(t *testing.T) {
 			require.NoError(t, err)
 
 			// Find specific configs and verify their properties
-			var launchTaskporter, nodeExample *config.Task
+			var launchTaskporter, debugPort *config.Task
 			for _, task := range tasks {
 				switch task.Name {
 				case "Launch taskporter":
 					launchTaskporter = task
-				case "Launch Node.js Example":
-					nodeExample = task
+				case "Debug taskporter port":
+					debugPort = task
 				}
 			}
 
@@ -87,15 +86,18 @@ func TestLaunchParser(t *testing.T) {
 				require.Equal(t, "true", launchTaskporter.Env["DEBUG"])
 			})
 
-			t.Run("Node.js example properties", func(t *testing.T) {
-				require.NotNil(t, nodeExample, "Node.js example config not found")
-				require.Equal(t, "node", nodeExample.Command)
-				require.NotEmpty(t, nodeExample.Args)
-				require.Contains(t, nodeExample.Args[0], "node-app/index.js")
-				require.Contains(t, nodeExample.Args, "--port")
-				require.Contains(t, nodeExample.Args, "3000")
-				require.NotNil(t, nodeExample.Env)
-				require.Equal(t, "development", nodeExample.Env["NODE_ENV"])
+			t.Run("Debug taskporter port properties", func(t *testing.T) {
+				require.NotNil(t, debugPort, "Debug taskporter port config not found")
+				require.Equal(t, "go", debugPort.Command)
+				require.Contains(t, debugPort.Args, "run")
+				require.Contains(t, debugPort.Args, "port")
+				require.Contains(t, debugPort.Args, "--from")
+				require.Contains(t, debugPort.Args, "vscode-tasks")
+				require.Contains(t, debugPort.Args, "--to")
+				require.Contains(t, debugPort.Args, "jetbrains")
+				require.Contains(t, debugPort.Args, "--dry-run")
+				require.NotNil(t, debugPort.Env)
+				require.Equal(t, "1", debugPort.Env["VERBOSE"])
 			})
 		})
 	})

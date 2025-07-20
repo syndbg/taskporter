@@ -41,37 +41,18 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Launch Node.js Example",
-            "type": "node",
+            "name": "Debug taskporter port",
+            "type": "go",
             "request": "launch",
-            "program": "${workspaceFolder}/examples/node-app/index.js",
-            "args": ["--port", "3000"],
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "args": ["port", "--from", "vscode-tasks", "--to", "jetbrains", "--dry-run"],
             "env": {
-                "NODE_ENV": "development"
-            },
-            "cwd": "${workspaceFolder}/examples/node-app",
-            "console": "integratedTerminal",
-            "preLaunchTask": "install-deps"
-        },
-        {
-            "name": "Python Script Debug",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/analyze.py",
-            "args": ["--input", "data.json"],
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "VERBOSE": "1"
             },
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Attach to Process",
-            "type": "go",
-            "request": "attach",
-            "mode": "local",
-            "processId": 0
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
         }
     ]
 }
