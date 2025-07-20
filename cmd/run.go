@@ -15,9 +15,11 @@ import (
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
-	Use:   "run <task-name>",
+	Use:   "run [task-name]",
 	Short: "Execute a task or launch configuration",
 	Long: `Execute a specified task or launch configuration from any supported editor.
+
+If no task name is provided, an interactive selector will be shown.
 
 The task name should match exactly as it appears in the configuration files.
 Supports tasks from:
@@ -26,9 +28,12 @@ Supports tasks from:
 - JetBrains run configurations
 
 Preparing to establish execution strand...`,
-	Args: cobra.ExactArgs(1),
+	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		taskName := args[0]
+		var taskName string
+		if len(args) > 0 {
+			taskName = args[0]
+		}
 		if err := runTaskCommand(taskName); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
@@ -37,10 +42,6 @@ Preparing to establish execution strand...`,
 }
 
 func runTaskCommand(taskName string) error {
-	if verbose {
-		fmt.Printf("🔍 Searching for task: %s\n", taskName)
-	}
-
 	// Determine project root
 	projectRoot := "."
 	if configPath != "" {
@@ -124,6 +125,34 @@ func runTaskCommand(taskName string) error {
 		return nil
 	}
 
+	// Convert to value type for interactive selector
+	tasks := make([]config.Task, len(allTasks))
+	for i, taskPtr := range allTasks {
+		tasks[i] = *taskPtr
+	}
+
+	// If no task name provided, run interactive mode
+	if taskName == "" {
+		if verbose {
+			fmt.Printf("🎮 Starting interactive task selector...\n")
+		}
+		selectedTask, err := runner.RunInteractiveTaskSelector(tasks)
+		if err != nil {
+			return fmt.Errorf("interactive selection failed: %w", err)
+		}
+		if selectedTask == nil {
+			// User cancelled
+			return nil
+		}
+		// Use the selected task
+		task := selectedTask
+		return executeSelectedTask(task, allTasks, projectConfig, detector)
+	}
+
+	if verbose {
+		fmt.Printf("🔍 Searching for task: %s\n", taskName)
+	}
+
 	// Find the requested task
 	finder := runner.NewTaskFinder()
 	task, err := finder.FindTask(taskName, allTasks)
@@ -148,8 +177,14 @@ func runTaskCommand(taskName string) error {
 		fmt.Println()
 	}
 
+	return executeSelectedTask(task, allTasks, projectConfig, detector)
+}
+
+// executeSelectedTask executes a task with proper preLaunchTask handling
+func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConfig *config.ProjectConfig, detector *config.ProjectDetector) error {
 	// Check for preLaunchTask if this is a launch configuration
 	if task.Type == config.TypeVSCodeLaunch {
+		finder := runner.NewTaskFinder()
 		if err := runPreLaunchTask(task, allTasks, projectConfig, detector, finder, verbose); err != nil {
 			return fmt.Errorf("preLaunchTask failed: %w", err)
 		}
