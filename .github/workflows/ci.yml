@@ -65,9 +65,9 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@3d16f46f229bd30357c5de1a861936e9a560e973
+      uses: golangci/golangci-lint-action@v8
       with:
-        version: v2.2.2
+        version: latest
         args: --timeout=5m
 
   security:
