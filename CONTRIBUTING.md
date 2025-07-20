@@ -10,18 +10,43 @@
 
 ### Development Setup
 
-1. **Fork and Clone**
+1. **Install Go using goenv** (Recommended)
+
+   For the best development experience, use `syndbg/goenv` to manage Go versions:
+   ```bash
+   # Install goenv
+   git clone https://github.com/syndbg/goenv.git ~/.goenv
+
+   # Add to your shell profile (.bashrc, .zshrc, etc.)
+   echo 'export GOENV_ROOT="$HOME/.goenv"' >> ~/.zshrc
+   echo 'export PATH="$GOENV_ROOT/bin:$PATH"' >> ~/.zshrc
+   echo 'eval "$(goenv init -)"' >> ~/.zshrc
+
+   # Reload your shell or source the profile
+   source ~/.zshrc
+
+   # Install and use Go 1.24.5
+   goenv install 1.24.5
+   goenv global 1.24.5
+   ```
+
+   Alternatively, install Go directly from [golang.org](https://golang.org/dl/)
+
+2. **Fork and Clone**
    ```bash
    git clone https://github.com/yourusername/taskporter.git
    cd taskporter
+
+   # If using goenv, it will automatically switch to the project's Go version
+   # based on the .goenv-version file (if present)
    ```
 
-2. **Install Dependencies**
+3. **Install Dependencies**
    ```bash
    go mod download
    ```
 
-3. **Verify Setup**
+4. **Verify Setup**
    ```bash
    make check
    ```
