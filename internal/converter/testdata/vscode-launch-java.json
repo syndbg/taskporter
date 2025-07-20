@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Java App",
+            "type": "java",
+            "request": "launch",
+            "mainClass": "com.example.Application",
+            "args": ["--spring.profiles.active=dev", "--debug"],
+            "env": {
+                "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk",
+                "SPRING_PROFILES_ACTIVE": "development"
+            },
+            "cwd": "${workspaceFolder}",
+            "classPaths": ["${workspaceFolder}/target/classes", "${workspaceFolder}/lib/*"]
+        },
+        {
+            "name": "Debug Java Test",
+            "type": "java",
+            "request": "launch",
+            "mainClass": "com.example.TestRunner",
+            "args": ["--test-class", "com.example.UserServiceTest"],
+            "cwd": "${workspaceFolder}/src/test/java"
+        },
+        {
+            "name": "Java Console App",
+            "type": "java",
+            "request": "launch",
+            "mainClass": "com.example.ConsoleApplication",
+            "console": "externalTerminal",
+            "args": ["input.txt", "output.txt"]
+        }
+    ]
+}

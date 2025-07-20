@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Go Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "args": ["--verbose", "--output", "result.txt"],
+            "env": {
+                "GO_ENV": "development",
+                "DEBUG": "true"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Launch Go File",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/main.go",
+            "args": ["serve", "--port", "8080"],
+            "env": {
+                "PORT": "8080"
+            }
+        },
+        {
+            "name": "Attach to Go Process",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "${workspaceFolder}",
+            "port": 2345,
+            "host": "127.0.0.1"
+        }
+    ]
+}

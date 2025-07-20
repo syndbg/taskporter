@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="Node.js App" type="NodeJSConfigurationType" factoryName="Node.js">
+    <option name="PATH_TO_JS_FILE" value="$PROJECT_DIR$/src/index.js" />
+    <option name="APPLICATION_PARAMETERS" value="--env development --port 3000" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="NODE_PARAMETERS" value="--inspect" />
+    <envs>
+      <env name="NODE_ENV" value="development" />
+      <env name="DEBUG" value="app:*" />
+    </envs>
+  </configuration>
+</component>

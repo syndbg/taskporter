@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Node.js App",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/index.js",
+            "args": ["--env", "development", "--port", "3000"],
+            "env": {
+                "NODE_ENV": "development",
+                "DEBUG": "app:*"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Launch TypeScript App",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/dist/app.js",
+            "preLaunchTask": "tsc: build",
+            "args": ["--config", "config.json"],
+            "env": {
+                "NODE_ENV": "test"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Attach to Node Process",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "address": "localhost",
+            "restart": true
+        }
+    ]
+}

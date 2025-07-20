@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="Run Go App" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <option name="PACKAGE" value="." />
+    <option name="RUN_KIND" value="PACKAGE" />
+    <option name="PROGRAM_PARAMETERS" value="--verbose --output result.txt" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="GO_PARAMETERS" value="-race" />
+    <envs>
+      <env name="GO_ENV" value="development" />
+      <env name="DEBUG" value="true" />
+    </envs>
+  </configuration>
+</component>

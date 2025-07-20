@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Python App",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "args": ["--verbose", "--config", "settings.ini"],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "DEBUG": "1"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Python Module",
+            "type": "python",
+            "request": "launch",
+            "module": "mypackage.cli",
+            "args": ["command", "--option", "value"],
+            "env": {
+                "ENV": "development"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python Django",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": ["runserver", "0.0.0.0:8000"],
+            "env": {
+                "DJANGO_SETTINGS_MODULE": "myproject.settings.development"
+            },
+            "django": true
+        }
+    ]
+}

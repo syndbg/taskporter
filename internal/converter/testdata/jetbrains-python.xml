@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="Python App" type="PythonConfigurationType" factoryName="Python">
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main.py" />
+    <option name="PARAMETERS" value="--verbose --config settings.ini" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="INTERPRETER_OPTIONS" value="-u" />
+    <envs>
+      <env name="PYTHONPATH" value="$PROJECT_DIR$/src" />
+      <env name="DEBUG" value="1" />
+    </envs>
+  </configuration>
+</component>
