@@ -7,17 +7,28 @@ import (
 	"strings"
 
 	"taskporter/internal/config"
+	"taskporter/internal/security"
 )
 
 // TaskRunner handles execution of tasks
 type TaskRunner struct {
-	verbose bool
+	verbose   bool
+	sanitizer *security.Sanitizer
 }
 
 // NewTaskRunner creates a new task runner
 func NewTaskRunner(verbose bool) *TaskRunner {
 	return &TaskRunner{
-		verbose: verbose,
+		verbose:   verbose,
+		sanitizer: security.NewSanitizer("."), // Will be updated with proper project root
+	}
+}
+
+// NewTaskRunnerWithProjectRoot creates a new task runner with a specific project root for security
+func NewTaskRunnerWithProjectRoot(verbose bool, projectRoot string) *TaskRunner {
+	return &TaskRunner{
+		verbose:   verbose,
+		sanitizer: security.NewSanitizer(projectRoot),
 	}
 }
 
@@ -31,20 +42,43 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 		if len(task.Env) > 0 {
 			fmt.Printf("🌐 Environment variables: %v\n", task.Env)
 		}
+		fmt.Printf("🛡️ Performing security validation...\n")
 		fmt.Println("⚡ Starting execution...")
 		fmt.Println()
 	}
 
-	// Create the command
-	cmd := exec.Command(task.Command, task.Args...)
-
-	// Set working directory
-	if task.Cwd != "" {
-		cmd.Dir = task.Cwd
+	// Security validation
+	if err := tr.validateTaskSecurity(task); err != nil {
+		return fmt.Errorf("security validation failed for task '%s': %w", task.Name, err)
 	}
 
-	// Set up environment variables
-	cmd.Env = tr.buildEnvironment(task.Env)
+	if tr.verbose {
+		fmt.Printf("✅ Security validation passed\n")
+	}
+
+	// Create the command with sanitized inputs
+	sanitizedArgs, err := tr.sanitizer.SanitizeArgs(task.Args)
+	if err != nil {
+		return fmt.Errorf("failed to sanitize arguments for task '%s': %w", task.Name, err)
+	}
+
+	cmd := exec.Command(task.Command, sanitizedArgs...)
+
+	// Set working directory (with validation)
+	if task.Cwd != "" {
+		sanitizedCwd, err := tr.sanitizer.SanitizePath(task.Cwd)
+		if err != nil {
+			return fmt.Errorf("failed to sanitize working directory for task '%s': %w", task.Name, err)
+		}
+		cmd.Dir = sanitizedCwd
+	}
+
+	// Set up environment variables (with validation)
+	env, err := tr.buildEnvironment(task.Env)
+	if err != nil {
+		return fmt.Errorf("failed to build environment for task '%s': %w", task.Name, err)
+	}
+	cmd.Env = env
 
 	// Set up input/output
 	cmd.Stdin = os.Stdin
@@ -65,17 +99,57 @@ func (tr *TaskRunner) RunTask(task *config.Task) error {
 	return nil
 }
 
-// buildEnvironment creates the environment for task execution
-func (tr *TaskRunner) buildEnvironment(taskEnv map[string]string) []string {
+// validateTaskSecurity performs comprehensive security validation on a task
+func (tr *TaskRunner) validateTaskSecurity(task *config.Task) error {
+	// Validate task name
+	if err := tr.sanitizer.ValidateTaskName(task.Name); err != nil {
+		return fmt.Errorf("invalid task name: %w", err)
+	}
+
+	// Validate command
+	if err := tr.sanitizer.SanitizeCommand(task.Command); err != nil {
+		return fmt.Errorf("invalid command: %w", err)
+	}
+
+	// Validate arguments
+	if _, err := tr.sanitizer.SanitizeArgs(task.Args); err != nil {
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
+	// Validate working directory
+	if task.Cwd != "" {
+		if _, err := tr.sanitizer.SanitizePath(task.Cwd); err != nil {
+			return fmt.Errorf("invalid working directory: %w", err)
+		}
+	}
+
+	// Validate environment variables
+	if _, err := tr.sanitizer.SanitizeEnvironment(task.Env); err != nil {
+		return fmt.Errorf("invalid environment variables: %w", err)
+	}
+
+	return nil
+}
+
+// buildEnvironment creates the environment for task execution with security validation
+func (tr *TaskRunner) buildEnvironment(taskEnv map[string]string) ([]string, error) {
 	// Start with current environment
 	env := os.Environ()
 
-	// Add task-specific environment variables
-	for key, value := range taskEnv {
-		env = append(env, fmt.Sprintf("%s=%s", key, value))
+	// Validate and sanitize task-specific environment variables
+	if len(taskEnv) > 0 {
+		sanitizedEnv, err := tr.sanitizer.SanitizeEnvironment(taskEnv)
+		if err != nil {
+			return nil, fmt.Errorf("failed to sanitize environment variables: %w", err)
+		}
+
+		// Add sanitized task-specific environment variables
+		for key, value := range sanitizedEnv {
+			env = append(env, fmt.Sprintf("%s=%s", key, value))
+		}
 	}
 
-	return env
+	return env, nil
 }
 
 // TaskFinder helps find tasks by name from a list

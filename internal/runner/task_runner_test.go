@@ -10,20 +10,24 @@ import (
 
 func TestTaskRunner(t *testing.T) {
 	t.Run("NewTaskRunner", func(t *testing.T) {
-		runner := NewTaskRunner(true)
+		runner := NewTaskRunner(false)
+		require.NotNil(t, runner)
+		require.False(t, runner.verbose)
+	})
+
+	t.Run("NewTaskRunnerWithProjectRoot", func(t *testing.T) {
+		runner := NewTaskRunnerWithProjectRoot(true, "/test/project")
 		require.NotNil(t, runner)
 		require.True(t, runner.verbose)
-
-		runner2 := NewTaskRunner(false)
-		require.NotNil(t, runner2)
-		require.False(t, runner2.verbose)
+		require.NotNil(t, runner.sanitizer) // Just check that sanitizer is initialized
 	})
 
 	t.Run("buildEnvironment", func(t *testing.T) {
 		runner := NewTaskRunner(false)
 
 		t.Run("with no task environment", func(t *testing.T) {
-			env := runner.buildEnvironment(nil)
+			env, err := runner.buildEnvironment(nil)
+			require.NoError(t, err)
 			require.NotEmpty(t, env) // Should have system environment
 		})
 
@@ -33,7 +37,8 @@ func TestTaskRunner(t *testing.T) {
 				"NODE_ENV": "development",
 			}
 
-			env := runner.buildEnvironment(taskEnv)
+			env, err := runner.buildEnvironment(taskEnv)
+			require.NoError(t, err)
 			require.NotEmpty(t, env)
 
 			// Check that our task env vars are present
@@ -49,6 +54,72 @@ func TestTaskRunner(t *testing.T) {
 
 			require.True(t, foundDebug, "DEBUG environment variable should be set")
 			require.True(t, foundNodeEnv, "NODE_ENV environment variable should be set")
+		})
+
+		t.Run("with invalid environment variables", func(t *testing.T) {
+			taskEnv := map[string]string{
+				"PATH": "/malicious/path", // Should be rejected by security validation
+			}
+
+			_, err := runner.buildEnvironment(taskEnv)
+			require.Error(t, err)
+			require.Contains(t, err.Error(), "PATH")
+		})
+	})
+
+	t.Run("validateTaskSecurity", func(t *testing.T) {
+		runner := NewTaskRunner(false)
+
+		t.Run("valid task should pass", func(t *testing.T) {
+			task := &config.Task{
+				Name:    "build",
+				Command: "go",
+				Args:    []string{"build", "-o", "bin/app"},
+				Cwd:     ".",
+				Env: map[string]string{
+					"CGO_ENABLED": "0",
+				},
+			}
+
+			err := runner.validateTaskSecurity(task)
+			require.NoError(t, err)
+		})
+
+		t.Run("task with dangerous command should be rejected", func(t *testing.T) {
+			task := &config.Task{
+				Name:    "malicious",
+				Command: "rm -rf /",
+				Args:    []string{},
+			}
+
+			err := runner.validateTaskSecurity(task)
+			require.Error(t, err)
+			require.Contains(t, err.Error(), "dangerous")
+		})
+
+		t.Run("task with dangerous arguments should be rejected", func(t *testing.T) {
+			task := &config.Task{
+				Name:    "test",
+				Command: "echo",
+				Args:    []string{"$(whoami)"},
+			}
+
+			err := runner.validateTaskSecurity(task)
+			require.Error(t, err)
+		})
+
+		t.Run("task with invalid environment should be rejected", func(t *testing.T) {
+			task := &config.Task{
+				Name:    "test",
+				Command: "echo",
+				Args:    []string{"hello"},
+				Env: map[string]string{
+					"PATH": "/malicious",
+				},
+			}
+
+			err := runner.validateTaskSecurity(task)
+			require.Error(t, err)
 		})
 	})
 

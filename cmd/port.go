@@ -9,6 +9,7 @@ import (
 	"taskporter/internal/converter"
 	"taskporter/internal/parser/jetbrains"
 	"taskporter/internal/parser/vscode"
+	"taskporter/internal/security"
 
 	"github.com/spf13/cobra"
 )
@@ -76,6 +77,19 @@ Establishing cross-platform development strand...`,
 }
 
 func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string, dryRun bool, outputPath string) error {
+	// Create sanitizer for input validation
+	sanitizer := security.NewSanitizer(".")
+
+	// Validate config path if provided
+	if err := sanitizer.ValidateConfigPath(configPath); err != nil {
+		return fmt.Errorf("invalid config path: %w", err)
+	}
+
+	// Validate output path if provided
+	if err := sanitizer.ValidateOutputPath(outputPath); err != nil {
+		return fmt.Errorf("invalid output path: %w", err)
+	}
+
 	if verbose {
 		fmt.Printf("🚛 Preparing to port configurations...\n")
 		fmt.Printf("📤 From: %s\n", fromFormat)
@@ -83,6 +97,7 @@ func runPortCommand(fromFormat, toFormat string, verbose bool, configPath string
 		if dryRun {
 			fmt.Printf("🔍 Mode: Dry run (preview only)\n")
 		}
+		fmt.Printf("🛡️ Security validation passed\n")
 		fmt.Println()
 	}
 

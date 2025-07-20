@@ -9,6 +9,7 @@ import (
 	"taskporter/internal/parser/jetbrains"
 	"taskporter/internal/parser/vscode"
 	"taskporter/internal/runner"
+	"taskporter/internal/security"
 
 	"github.com/spf13/cobra"
 )
@@ -122,11 +123,29 @@ Preparing to establish execution strand...`,
 }
 
 func runTaskCommand(taskName string, verbose bool, configPath string, noInteractive bool) error {
+	// Create sanitizer for input validation
+	sanitizer := security.NewSanitizer(".")
+
+	// Validate task name if provided
+	if taskName != "" {
+		if err := sanitizer.ValidateTaskName(taskName); err != nil {
+			return fmt.Errorf("invalid task name: %w", err)
+		}
+	}
+
+	// Validate config path if provided
+	if err := sanitizer.ValidateConfigPath(configPath); err != nil {
+		return fmt.Errorf("invalid config path: %w", err)
+	}
+
 	// Determine project root
 	projectRoot := "."
 	if configPath != "" {
 		projectRoot = filepath.Dir(configPath)
 	}
+
+	// Update sanitizer with actual project root
+	sanitizer = security.NewSanitizer(projectRoot)
 
 	// Initialize project detector and find all tasks
 	detector := config.NewProjectDetector(projectRoot)
@@ -289,8 +308,8 @@ func executeSelectedTask(task *config.Task, allTasks []*config.Task, projectConf
 		}
 	}
 
-	// Execute the main task
-	taskRunner := runner.NewTaskRunner(verbose)
+	// Execute the main task with project root for security
+	taskRunner := runner.NewTaskRunnerWithProjectRoot(verbose, projectConfig.ProjectRoot)
 	if err := taskRunner.RunTask(task); err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
@@ -341,8 +360,8 @@ func runPreLaunchTask(launchTask *config.Task, allTasks []*config.Task, projectC
 		fmt.Println()
 	}
 
-	// Execute the preLaunchTask
-	taskRunner := runner.NewTaskRunner(verbose)
+	// Execute the preLaunchTask with project root for security
+	taskRunner := runner.NewTaskRunnerWithProjectRoot(verbose, projectConfig.ProjectRoot)
 	if err := taskRunner.RunTask(preLaunchTask); err != nil {
 		return fmt.Errorf("preLaunchTask '%s' execution failed: %w", preLaunchTaskName, err)
 	}
