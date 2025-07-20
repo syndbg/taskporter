@@ -155,22 +155,30 @@ func (c *VSCodeLaunchToJetBrainsConverter) convertSingleLaunchConfig(task *confi
 
 // determineJetBrainsConfigType determines the appropriate JetBrains config type
 func (c *VSCodeLaunchToJetBrainsConverter) determineJetBrainsConfigType(task *config.Task) (string, error) {
-	// Extract the launch type from task metadata or command
+	// Extract the launch type from task description (contains "go launch", "node launch", etc.)
+	description := strings.ToLower(task.Description)
 	command := strings.ToLower(task.Command)
 
-	// Check for Java applications
-	if strings.Contains(command, "java") || strings.Contains(task.Command, "mainClass") {
-		return "Application", nil
+	// Check for Go applications (priority check)
+	if strings.Contains(description, "go launch") || strings.Contains(description, "go attach") || command == "go" {
+		return "GoApplicationRunConfiguration", nil
 	}
 
 	// Check for Node.js applications
-	if strings.Contains(command, "node") || strings.Contains(task.Command, ".js") || strings.Contains(task.Command, ".ts") {
+	if strings.Contains(description, "node launch") || strings.Contains(description, "node attach") ||
+		command == "node" || strings.Contains(task.Command, ".js") || strings.Contains(task.Command, ".ts") {
 		return "NodeJSConfigurationType", nil
 	}
 
 	// Check for Python applications
-	if strings.Contains(command, "python") || strings.Contains(task.Command, ".py") {
+	if strings.Contains(description, "python launch") || strings.Contains(description, "python attach") ||
+		command == "python" || strings.Contains(task.Command, ".py") {
 		return "PythonConfigurationType", nil
+	}
+
+	// Check for Java applications
+	if strings.Contains(command, "java") || strings.Contains(task.Command, "mainClass") {
+		return "Application", nil
 	}
 
 	// Default to Application for generic executables
@@ -180,6 +188,8 @@ func (c *VSCodeLaunchToJetBrainsConverter) determineJetBrainsConfigType(task *co
 // addConfigurationOptions adds type-specific options to the JetBrains configuration
 func (c *VSCodeLaunchToJetBrainsConverter) addConfigurationOptions(task *config.Task, config *JetBrainsRunConfiguration) error {
 	switch config.Type {
+	case "GoApplicationRunConfiguration":
+		return c.addGoApplicationOptions(task, config)
 	case "Application":
 		return c.addJavaApplicationOptions(task, config)
 	case "NodeJSConfigurationType":
@@ -206,6 +216,37 @@ func (c *VSCodeLaunchToJetBrainsConverter) addJavaApplicationOptions(task *confi
 
 	// Add program parameters (excluding main class)
 	args := c.filterArgsExcluding(task.Args, mainClass)
+	if len(args) > 0 {
+		config.Options = append(config.Options, JetBrainsOption{
+			Name:  "PROGRAM_PARAMETERS",
+			Value: strings.Join(args, " "),
+		})
+	}
+
+	return nil
+}
+
+// addGoApplicationOptions adds Go-specific options
+func (c *VSCodeLaunchToJetBrainsConverter) addGoApplicationOptions(task *config.Task, config *JetBrainsRunConfiguration) error {
+	// For Go applications, extract the package path and arguments
+	packagePath := c.extractGoPackageFromLaunch(task)
+	if packagePath == "" {
+		packagePath = "."
+	}
+
+	config.Options = append(config.Options, JetBrainsOption{
+		Name:  "PACKAGE",
+		Value: packagePath,
+	})
+
+	// Add Go run kind (package vs file)
+	config.Options = append(config.Options, JetBrainsOption{
+		Name:  "RUN_KIND",
+		Value: "PACKAGE",
+	})
+
+	// Add program arguments (exclude "run" and package path)
+	args := c.filterGoArgsFromLaunch(task)
 	if len(args) > 0 {
 		config.Options = append(config.Options, JetBrainsOption{
 			Name:  "PROGRAM_PARAMETERS",
@@ -427,4 +468,48 @@ func (c *VSCodeLaunchToJetBrainsConverter) writeJetBrainsRunConfig(config *JetBr
 	}
 
 	return nil
+}
+
+// extractGoPackageFromLaunch extracts the Go package path from launch task
+func (c *VSCodeLaunchToJetBrainsConverter) extractGoPackageFromLaunch(task *config.Task) string {
+	// Look for package path in args after "run"
+	for i, arg := range task.Args {
+		if arg == "run" && i+1 < len(task.Args) {
+			packagePath := task.Args[i+1]
+			// Convert VSCode variables
+			packagePath = c.convertVSCodeVariables(packagePath)
+			// If it's the current directory, return "."
+			if packagePath == "$PROJECT_DIR$" {
+				return "."
+			}
+			return packagePath
+		}
+	}
+
+	// Default to current directory
+	return "."
+}
+
+// filterGoArgsFromLaunch filters out go command and package path, returning only program arguments
+func (c *VSCodeLaunchToJetBrainsConverter) filterGoArgsFromLaunch(task *config.Task) []string {
+	var filtered []string
+	skipNext := false
+
+	for _, arg := range task.Args {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+
+		// Skip "run" command and the package path that follows it
+		if arg == "run" {
+			skipNext = true
+			continue
+		}
+
+		// Include everything else as program arguments
+		filtered = append(filtered, arg)
+	}
+
+	return filtered
 }
