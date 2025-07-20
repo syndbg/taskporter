@@ -38,6 +38,7 @@ type VSCodeLaunchConfig struct {
 	Type        string            `json:"type"`
 	Request     string            `json:"request"`
 	Program     string            `json:"program,omitempty"`
+	Module      string            `json:"module,omitempty"`
 	MainClass   string            `json:"mainClass,omitempty"`
 	Args        []string          `json:"args,omitempty"`
 	Cwd         string            `json:"cwd,omitempty"`
@@ -232,13 +233,18 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 		// Python application
 		launchConfig.Type = "python"
 
-		// Extract program path
+		// Extract program path or module
 		program := c.extractPythonProgram(task)
 		if program == "" {
-			return fmt.Errorf("could not determine program for Python application '%s'", task.Name)
+			// Check if this is a module execution
+			module := c.extractPythonModule(task)
+			if module == "" {
+				return fmt.Errorf("could not determine program for Python application '%s'", task.Name)
+			}
+			launchConfig.Module = module
+		} else {
+			launchConfig.Program = c.convertJetBrainsVariables(program)
 		}
-
-		launchConfig.Program = c.convertJetBrainsVariables(program)
 
 		// Add arguments
 		args := c.extractPythonArgs(task)
@@ -354,6 +360,15 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractNodeArgs(task *config.Task) []
 
 // extractPythonProgram extracts the Python program path
 func (c *JetBrainsToVSCodeLaunchConverter) extractPythonProgram(task *config.Task) string {
+	// Check for Python module execution (python -m module)
+	for i, arg := range task.Args {
+		if arg == "-m" && i+1 < len(task.Args) {
+			// This is a module execution, return the module name
+			// VSCode handles modules differently - we'll return empty and let the caller handle it
+			return ""
+		}
+	}
+
 	parts := strings.Fields(task.Command)
 
 	// Look for the script file in command parts
@@ -363,7 +378,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractPythonProgram(task *config.Tas
 		}
 	}
 
-	// Look in args
+	// Look in args for .py files
 	for _, arg := range task.Args {
 		if strings.HasSuffix(arg, ".py") {
 			return arg
@@ -372,6 +387,17 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractPythonProgram(task *config.Tas
 
 	// Fallback
 	return "${workspaceFolder}/main.py"
+}
+
+// extractPythonModule extracts the Python module name for -m execution
+func (c *JetBrainsToVSCodeLaunchConverter) extractPythonModule(task *config.Task) string {
+	// Look for -m flag followed by module name
+	for i, arg := range task.Args {
+		if arg == "-m" && i+1 < len(task.Args) {
+			return task.Args[i+1]
+		}
+	}
+	return ""
 }
 
 // extractPythonArgs extracts Python program arguments
@@ -397,8 +423,21 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractPythonArgs(task *config.Task) 
 		}
 	}
 
-	// Add task args
-	args = append(args, task.Args...)
+	// Add task args, excluding -m module parts
+	skipNext := false
+	for _, arg := range task.Args {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+
+		if arg == "-m" {
+			skipNext = true // Skip the module name that follows
+			continue
+		}
+
+		args = append(args, arg)
+	}
 
 	return args
 }
