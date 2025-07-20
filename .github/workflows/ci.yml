@@ -117,28 +117,10 @@ jobs:
         go build -o taskporter-${{ matrix.os }}-${{ matrix.go-version }} .
         ./taskporter-${{ matrix.os }}-${{ matrix.go-version }} --version || true
 
-  release:
-    if: github.event_name == 'release'
+  trigger-release:
+    if: github.ref == 'refs/heads/main'
     needs: [test, lint, security, build]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.24.5'
-
-    - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v5
-      with:
-        distribution: goreleaser
-        version: latest
-        args: release --clean
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Trigger semantic release
+      run: echo "Release will be triggered by semantic-release workflow"

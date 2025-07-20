@@ -58,6 +58,8 @@ go install github.com/syndbg/taskporter@latest
 ### Download Binary
 Download the latest release for your platform from [GitHub Releases](https://github.com/syndbg/taskporter/releases).
 
+> **Note**: Taskporter uses [semantic versioning](https://semver.org/) with automatic releases based on [conventional commits](https://www.conventionalcommits.org/). New versions are automatically published when changes are merged to the main branch.
+
 ### Build from Source
 ```bash
 git clone https://github.com/syndbg/taskporter.git

@@ -208,23 +208,37 @@ func TestYourIDEParser(t *testing.T) {
 
 ## 📝 Commit Guidelines
 
+We use [Conventional Commits](https://www.conventionalcommits.org/) for automatic semantic versioning and changelog generation.
+
 ### Commit Message Format
 ```
-type(scope): brief description
+<type>[optional scope]: <description>
 
-Detailed explanation of the change (if needed)
+[optional body]
 
-Fixes #123
+[optional footer(s)]
 ```
 
 ### Types
-- `feat:` - New features
-- `fix:` - Bug fixes
+- `feat:` - New features (triggers minor version bump)
+- `fix:` - Bug fixes (triggers patch version bump)
 - `docs:` - Documentation changes
 - `style:` - Code style changes (formatting, etc.)
-- `refactor:` - Code refactoring
+- `refactor:` - Code refactoring without functional changes
 - `test:` - Adding or updating tests
-- `chore:` - Maintenance tasks
+- `chore:` - Maintenance tasks, dependency updates
+- `perf:` - Performance improvements
+- `ci:` - CI/CD pipeline changes
+- `build:` - Build system changes
+
+### Breaking Changes
+- Add `!` after type: `feat!: remove deprecated API`
+- Or add `BREAKING CHANGE:` in footer (triggers major version bump)
+
+### Semantic Versioning
+- **Major** (1.0.0): Breaking changes (`feat!:` or `BREAKING CHANGE:`)
+- **Minor** (0.1.0): New features (`feat:`)
+- **Patch** (0.0.1): Bug fixes (`fix:`)
 
 ### Examples
 ```
