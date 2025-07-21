@@ -165,6 +165,7 @@ func (c *VSCodeToJetBrainsConverter) convertSingleTask(task *config.Task) (*JetB
 		for key := range task.Env {
 			keys = append(keys, key)
 		}
+
 		sort.Strings(keys)
 
 		envVars := make([]JetBrainsEnvVar, 0, len(task.Env))

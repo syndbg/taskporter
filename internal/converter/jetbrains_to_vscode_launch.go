@@ -241,6 +241,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) determineLaunchType(task *config.Task
 			if module == "" {
 				return fmt.Errorf("could not determine program for Python application '%s'", task.Name)
 			}
+
 			launchConfig.Module = module
 		} else {
 			launchConfig.Program = c.convertJetBrainsVariables(program)
@@ -397,6 +398,7 @@ func (c *JetBrainsToVSCodeLaunchConverter) extractPythonModule(task *config.Task
 			return task.Args[i+1]
 		}
 	}
+
 	return ""
 }
 

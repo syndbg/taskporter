@@ -145,6 +145,7 @@ func (c *VSCodeLaunchToJetBrainsConverter) convertSingleLaunchConfig(task *confi
 		for key := range task.Env {
 			keys = append(keys, key)
 		}
+
 		sort.Strings(keys)
 
 		envVars := make([]JetBrainsEnvVar, 0, len(task.Env))
