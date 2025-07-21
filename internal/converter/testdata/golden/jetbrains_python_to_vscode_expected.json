@@ -1,0 +1,17 @@
+{
+  "name": "Python App",
+  "type": "python",
+  "request": "launch",
+  "program": "${workspaceFolder}/src/main.py",
+  "args": [
+    "$PROJECT_DIR$/src/main.py",
+    "--verbose",
+    "--config",
+    "settings.ini"
+  ],
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "DEBUG": "1",
+    "PYTHONPATH": "${workspaceFolder}/src"
+  }
+}

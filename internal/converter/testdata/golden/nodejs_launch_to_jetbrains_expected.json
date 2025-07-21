@@ -1,0 +1,58 @@
+{
+  "XMLName": {
+    "Space": "",
+    "Local": ""
+  },
+  "Name": "Launch Node.js App",
+  "Type": "NodeJSConfigurationType",
+  "Options": [
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "PATH_TO_JS_FILE",
+      "Value": "$PROJECT_DIR$/src/index.js"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "APPLICATION_PARAMETERS",
+      "Value": "${workspaceFolder}/src/index.js --env development --port 3000"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "WORKING_DIRECTORY",
+      "Value": "$PROJECT_DIR$"
+    }
+  ],
+  "EnvVars": {
+    "XMLName": {
+      "Space": "",
+      "Local": ""
+    },
+    "EnvVars": [
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "NODE_ENV",
+        "Value": "development"
+      },
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "DEBUG",
+        "Value": "app:*"
+      }
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "XMLName": {
+    "Space": "",
+    "Local": ""
+  },
+  "Name": "Launch Go Package",
+  "Type": "GoApplicationRunConfiguration",
+  "Options": [
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "PACKAGE",
+      "Value": "."
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "RUN_KIND",
+      "Value": "PACKAGE"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "PROGRAM_PARAMETERS",
+      "Value": "--verbose --output result.txt"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "WORKING_DIRECTORY",
+      "Value": "$PROJECT_DIR$"
+    }
+  ],
+  "EnvVars": {
+    "XMLName": {
+      "Space": "",
+      "Local": ""
+    },
+    "EnvVars": [
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "GO_ENV",
+        "Value": "development"
+      },
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "DEBUG",
+        "Value": "true"
+      }
+    ]
+  }
+}

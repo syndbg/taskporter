@@ -1,0 +1,17 @@
+{
+  "name": "Launch Go File",
+  "type": "go",
+  "request": "launch",
+  "program": "${workspaceFolder}/cmd/main.go",
+  "args": [
+    "run",
+    "$PROJECT_DIR$/cmd/main.go",
+    "serve",
+    "--port",
+    "8080"
+  ],
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "PORT": "8080"
+  }
+}

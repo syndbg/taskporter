@@ -120,19 +120,7 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
 
-brews:
-  - repository:
-      owner: syndbg
-      name: homebrew-tap
-    homepage: "https://github.com/syndbg/taskporter"
-    description: "Cross-platform tool for converting IDE configurations between VSCode and JetBrains"
-    license: "MIT"
-    test: |
-      system "#{bin}/taskporter --version"
-    dependencies:
-      - name: git
-    install: |-
-      bin.install "taskporter"
+
 
 nfpms:
   - file_name_template: '{{ .ConventionalFileName }}'

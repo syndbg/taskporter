@@ -1,0 +1,16 @@
+{
+  "name": "Python Django",
+  "type": "python",
+  "request": "launch",
+  "program": "${workspaceFolder}/manage.py",
+  "args": [
+    "$PROJECT_DIR$/manage.py",
+    "${workspaceFolder}/manage.py",
+    "runserver",
+    "0.0.0.0:8000"
+  ],
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "myproject.settings.development"
+  }
+}

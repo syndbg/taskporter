@@ -1,0 +1,11 @@
+{
+  "name": "Java Console App",
+  "type": "java",
+  "request": "launch",
+  "mainClass": "com.example.ConsoleApplication",
+  "args": [
+    "input.txt",
+    "output.txt"
+  ],
+  "cwd": "${workspaceFolder}"
+}

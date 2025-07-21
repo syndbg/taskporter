@@ -1,0 +1,16 @@
+{
+  "name": "Launch TypeScript App",
+  "type": "node",
+  "request": "launch",
+  "program": "${workspaceFolder}/dist/app.js",
+  "args": [
+    "$PROJECT_DIR$/dist/app.js",
+    "${workspaceFolder}/dist/app.js",
+    "--config",
+    "config.json"
+  ],
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "NODE_ENV": "test"
+  }
+}

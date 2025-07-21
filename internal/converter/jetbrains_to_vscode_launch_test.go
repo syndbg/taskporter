@@ -39,6 +39,9 @@ func TestJetBrainsToVSCodeLaunchConverter_ConvertToLaunch(t *testing.T) {
 		require.Contains(t, launchConfig.Args, "--output")
 		require.Len(t, launchConfig.Env, 2)
 		require.Equal(t, "development", launchConfig.Env["GO_ENV"])
+
+		// Verify against golden file for exact output
+		verifyVSCodeLaunchConfigGolden(t, launchConfig, "jetbrains_go_to_vscode_expected.json")
 	})
 
 	t.Run("Java configuration", func(t *testing.T) {
@@ -63,6 +66,9 @@ func TestJetBrainsToVSCodeLaunchConverter_ConvertToLaunch(t *testing.T) {
 		require.Equal(t, "com.example.Application", launchConfig.MainClass)
 		require.Contains(t, launchConfig.Args, "--spring.profiles.active=dev")
 		require.Len(t, launchConfig.Env, 2)
+
+		// Verify against golden file for exact output
+		verifyVSCodeLaunchConfigGolden(t, launchConfig, "jetbrains_java_to_vscode_expected.json")
 	})
 
 	t.Run("Node.js configuration", func(t *testing.T) {
@@ -88,6 +94,9 @@ func TestJetBrainsToVSCodeLaunchConverter_ConvertToLaunch(t *testing.T) {
 		require.Contains(t, launchConfig.Args, "--env")
 		require.Contains(t, launchConfig.Args, "development")
 		require.Len(t, launchConfig.Env, 2)
+
+		// Verify against golden file for exact output
+		verifyVSCodeLaunchConfigGolden(t, launchConfig, "jetbrains_nodejs_to_vscode_expected.json")
 	})
 
 	t.Run("Python configuration", func(t *testing.T) {
@@ -113,6 +122,9 @@ func TestJetBrainsToVSCodeLaunchConverter_ConvertToLaunch(t *testing.T) {
 		require.Contains(t, launchConfig.Args, "--verbose")
 		require.Contains(t, launchConfig.Args, "--config")
 		require.Len(t, launchConfig.Env, 2)
+
+		// Verify against golden file for exact output
+		verifyVSCodeLaunchConfigGolden(t, launchConfig, "jetbrains_python_to_vscode_expected.json")
 	})
 }
 
@@ -259,6 +271,10 @@ func TestJetBrainsToVSCodeLaunchConverter_BidirectionalConsistency(t *testing.T)
 				// Verify language consistency
 				require.Equal(t, tc.originalType, finalLaunchConfig.Type,
 					"Language type should be consistent through round-trip conversion")
+
+				// Verify against golden file for exact round-trip output
+				goldenFileName := tc.originalType + "_roundtrip_expected.json"
+				verifyVSCodeLaunchConfigGolden(t, finalLaunchConfig, goldenFileName)
 			}
 		})
 	}

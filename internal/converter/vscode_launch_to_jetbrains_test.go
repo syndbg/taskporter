@@ -65,6 +65,9 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 		// Verify environment variables
 		require.NotNil(t, jetbrainsConfig.EnvVars)
 		require.Len(t, jetbrainsConfig.EnvVars.EnvVars, 2)
+
+		// Verify against golden file for exact output
+		verifyJetBrainsConfigGolden(t, jetbrainsConfig, "go_launch_to_jetbrains_expected.json")
 	})
 
 	t.Run("Java launch configuration", func(t *testing.T) {
@@ -107,6 +110,9 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 
 		require.True(t, hasMainClass, "Should have MAIN_CLASS_NAME option")
 		require.True(t, hasProgramParams, "Should have PROGRAM_PARAMETERS option")
+
+		// Verify against golden file for exact output
+		verifyJetBrainsConfigGolden(t, jetbrainsConfig, "java_launch_to_jetbrains_expected.json")
 	})
 
 	t.Run("Node.js launch configuration", func(t *testing.T) {
@@ -149,6 +155,9 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 
 		require.True(t, hasJSPath, "Should have PATH_TO_JS_FILE option")
 		require.True(t, hasAppParams, "Should have APPLICATION_PARAMETERS option")
+
+		// Verify against golden file for exact output
+		verifyJetBrainsConfigGolden(t, jetbrainsConfig, "nodejs_launch_to_jetbrains_expected.json")
 	})
 
 	t.Run("Python launch configuration", func(t *testing.T) {
@@ -192,6 +201,9 @@ func TestVSCodeLaunchToJetBrainsConverter_ConvertLaunchConfigs(t *testing.T) {
 
 		require.True(t, hasScriptName, "Should have SCRIPT_NAME option")
 		require.True(t, hasParams, "Should have PARAMETERS option")
+
+		// Verify against golden file for exact output
+		verifyJetBrainsConfigGolden(t, jetbrainsConfig, "python_launch_to_jetbrains_expected.json")
 	})
 }
 
@@ -423,4 +435,80 @@ func parseVSCodeLaunchDataToTasks(t *testing.T, launchFile map[string]interface{
 	}
 
 	return tasks
+}
+
+// Golden file testing helpers
+
+// verifyJetBrainsConfigGolden verifies a JetBrains configuration against a golden file
+func verifyJetBrainsConfigGolden(t *testing.T, config *JetBrainsRunConfiguration, goldenFileName string) {
+	t.Helper()
+
+	goldenPath := filepath.Join("testdata", "golden", goldenFileName)
+
+	// Create directory if it doesn't exist
+	goldenDir := filepath.Dir(goldenPath)
+	if err := os.MkdirAll(goldenDir, 0755); err != nil {
+		t.Fatalf("Failed to create golden directory: %v", err)
+	}
+
+	// Marshal the config to JSON for comparison (easier than XML)
+	actualData, err := json.MarshalIndent(config, "", "  ")
+	require.NoError(t, err, "Failed to marshal JetBrains config")
+
+	updateGolden := os.Getenv("UPDATE_GOLDEN") == "true"
+
+	if updateGolden {
+		// Update the golden file
+		err = os.WriteFile(goldenPath, actualData, 0644)
+		require.NoError(t, err, "Failed to write golden file: %s", goldenPath)
+		t.Logf("Updated golden file: %s", goldenPath)
+	} else {
+		// Compare with existing golden file
+		expectedData, err := os.ReadFile(goldenPath)
+		if err != nil {
+			t.Logf("Golden file not found: %s. Run with UPDATE_GOLDEN=true to create it.", goldenPath)
+			t.Logf("Actual config:\n%s", string(actualData))
+			t.FailNow()
+		}
+
+		require.JSONEq(t, string(expectedData), string(actualData),
+			"JetBrains config doesn't match golden file: %s", goldenPath)
+	}
+}
+
+// verifyVSCodeLaunchConfigGolden verifies a VSCode launch configuration against a golden file
+func verifyVSCodeLaunchConfigGolden(t *testing.T, config *VSCodeLaunchConfig, goldenFileName string) {
+	t.Helper()
+
+	goldenPath := filepath.Join("testdata", "golden", goldenFileName)
+
+	// Create directory if it doesn't exist
+	goldenDir := filepath.Dir(goldenPath)
+	if err := os.MkdirAll(goldenDir, 0755); err != nil {
+		t.Fatalf("Failed to create golden directory: %v", err)
+	}
+
+	// Marshal the config to JSON
+	actualData, err := json.MarshalIndent(config, "", "  ")
+	require.NoError(t, err, "Failed to marshal VSCode launch config")
+
+	updateGolden := os.Getenv("UPDATE_GOLDEN") == "true"
+
+	if updateGolden {
+		// Update the golden file
+		err = os.WriteFile(goldenPath, actualData, 0644)
+		require.NoError(t, err, "Failed to write golden file: %s", goldenPath)
+		t.Logf("Updated golden file: %s", goldenPath)
+	} else {
+		// Compare with existing golden file
+		expectedData, err := os.ReadFile(goldenPath)
+		if err != nil {
+			t.Logf("Golden file not found: %s. Run with UPDATE_GOLDEN=true to create it.", goldenPath)
+			t.Logf("Actual config:\n%s", string(actualData))
+			t.FailNow()
+		}
+
+		require.JSONEq(t, string(expectedData), string(actualData),
+			"VSCode launch config doesn't match golden file: %s", goldenPath)
+	}
 }

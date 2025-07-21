@@ -1,0 +1,58 @@
+{
+  "XMLName": {
+    "Space": "",
+    "Local": ""
+  },
+  "Name": "Launch Python App",
+  "Type": "PythonConfigurationType",
+  "Options": [
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "SCRIPT_NAME",
+      "Value": "$PROJECT_DIR$/src/main.py"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "PARAMETERS",
+      "Value": "${workspaceFolder}/src/main.py --verbose --config settings.ini"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "WORKING_DIRECTORY",
+      "Value": "$PROJECT_DIR$"
+    }
+  ],
+  "EnvVars": {
+    "XMLName": {
+      "Space": "",
+      "Local": ""
+    },
+    "EnvVars": [
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "PYTHONPATH",
+        "Value": "$PROJECT_DIR$/src"
+      },
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "DEBUG",
+        "Value": "1"
+      }
+    ]
+  }
+}

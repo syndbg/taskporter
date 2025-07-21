@@ -1,0 +1,15 @@
+{
+  "name": "Java Application",
+  "type": "java",
+  "request": "launch",
+  "mainClass": "com.example.Application",
+  "args": [
+    "--spring.profiles.active=dev",
+    "--debug"
+  ],
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk",
+    "SPRING_PROFILES_ACTIVE": "development"
+  }
+}

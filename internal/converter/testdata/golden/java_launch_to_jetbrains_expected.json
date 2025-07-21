@@ -1,0 +1,58 @@
+{
+  "XMLName": {
+    "Space": "",
+    "Local": ""
+  },
+  "Name": "Launch Java App",
+  "Type": "Application",
+  "Options": [
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "MAIN_CLASS_NAME",
+      "Value": "com.example.Application"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "PROGRAM_PARAMETERS",
+      "Value": "--spring.profiles.active=dev --debug"
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "WORKING_DIRECTORY",
+      "Value": "$PROJECT_DIR$"
+    }
+  ],
+  "EnvVars": {
+    "XMLName": {
+      "Space": "",
+      "Local": ""
+    },
+    "EnvVars": [
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "JAVA_HOME",
+        "Value": "/usr/lib/jvm/java-11-openjdk"
+      },
+      {
+        "XMLName": {
+          "Space": "",
+          "Local": ""
+        },
+        "Name": "SPRING_PROFILES_ACTIVE",
+        "Value": "development"
+      }
+    ]
+  }
+}
