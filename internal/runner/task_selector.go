@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

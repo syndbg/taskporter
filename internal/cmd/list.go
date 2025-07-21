@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"taskporter/internal/config"
-	"taskporter/internal/parser/jetbrains"
-	"taskporter/internal/parser/vscode"
+	"github.com/syndbg/taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/parser/jetbrains"
+	"github.com/syndbg/taskporter/internal/parser/vscode"
 
 	"github.com/spf13/cobra"
 )

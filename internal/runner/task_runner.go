@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"taskporter/internal/config"
-	"taskporter/internal/security"
+	"github.com/syndbg/taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/security"
 )
 
 // TaskRunner handles execution of tasks

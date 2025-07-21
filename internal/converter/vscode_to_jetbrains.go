@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 )
 
 // VSCodeToJetBrainsConverter converts VSCode tasks to JetBrains run configurations

@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 
 	"github.com/stretchr/testify/require"
 )

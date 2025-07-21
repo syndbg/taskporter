@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 )
 
 // JetBrainsToVSCodeConverter converts JetBrains run configurations to VSCode tasks

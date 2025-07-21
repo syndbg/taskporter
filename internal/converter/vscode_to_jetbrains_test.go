@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"taskporter/internal/config"
-	"taskporter/internal/parser/vscode"
+	"github.com/syndbg/taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/parser/vscode"
 
 	"github.com/stretchr/testify/require"
 )

@@ -1,4 +1,4 @@
-module taskporter
+module github.com/syndbg/taskporter
 
 go 1.24.5
 

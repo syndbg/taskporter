@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 )
 
 // LaunchParser handles parsing of VSCode launch.json files

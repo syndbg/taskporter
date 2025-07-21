@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"taskporter/internal/cmd"
+
+	"github.com/syndbg/taskporter/internal/cmd"
 )
 
 func main() {

@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"taskporter/internal/config"
-	"taskporter/internal/parser/jetbrains"
-	"taskporter/internal/parser/vscode"
-	"taskporter/internal/runner"
-	"taskporter/internal/security"
+	"github.com/syndbg/taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/parser/jetbrains"
+	"github.com/syndbg/taskporter/internal/parser/vscode"
+	"github.com/syndbg/taskporter/internal/runner"
+	"github.com/syndbg/taskporter/internal/security"
 
 	"github.com/spf13/cobra"
 )

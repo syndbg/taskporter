@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 )
 
 // VSCodeTaskFile represents the structure of VSCode tasks.json

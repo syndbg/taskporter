@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/config"
 )
 
 // RunConfigurationParser handles parsing of JetBrains run configuration XML files
