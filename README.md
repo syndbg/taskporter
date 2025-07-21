@@ -18,6 +18,12 @@
 
 Taskporter is a **cross-editor task bridge** that unifies task execution across different IDEs and editors. Just like Sam Porter Bridges connects isolated cities in Death Stranding, Taskporter connects your development tools, allowing you to run VSCode tasks, launch configurations, and JetBrains run configurations from a single, unified CLI.
 
+## 🎬 See it in Action
+
+![Taskporter Demo](demo/demo.gif)
+
+*Watch Taskporter discover, convert, and execute tasks across VSCode and JetBrains IDEs seamlessly*
+
 ## ✨ Features
 
 ### 🎯 **Multi-Editor Support**

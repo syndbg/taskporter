@@ -57,7 +57,6 @@ taskporter
 
 # Demo outputs and recordings
 demo/
-*.gif
 *.mp4
 *.mov
 *.cast
