@@ -20,7 +20,7 @@ Taskporter is a **cross-editor task bridge** that unifies task execution across 
 
 ## 🎬 See it in Action
 
-![Taskporter Demo](demo/demo.gif)
+![Taskporter Demo](.github/demo.gif)
 
 *Watch Taskporter discover, convert, and execute tasks across VSCode and JetBrains IDEs seamlessly*
 
