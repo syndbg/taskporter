@@ -368,13 +368,6 @@ We welcome contributions! Whether you're fixing bugs, adding features, improving
 - Pull request process and review
 - Architecture guidelines and design principles
 
-Quick start for contributors:
-```bash
-git clone https://github.com/yourusername/taskporter.git
-cd taskporter
-make check  # Verify everything works
-```
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
