@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"taskporter/internal/config"
@@ -139,11 +140,18 @@ func (c *VSCodeLaunchToJetBrainsConverter) convertSingleLaunchConfig(task *confi
 
 	// Convert environment variables
 	if len(task.Env) > 0 {
+		// Sort keys for deterministic ordering
+		keys := make([]string, 0, len(task.Env))
+		for key := range task.Env {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+
 		envVars := make([]JetBrainsEnvVar, 0, len(task.Env))
-		for key, value := range task.Env {
+		for _, key := range keys {
 			envVars = append(envVars, JetBrainsEnvVar{
 				Name:  key,
-				Value: c.convertVSCodeVariables(value),
+				Value: c.convertVSCodeVariables(task.Env[key]),
 			})
 		}
 

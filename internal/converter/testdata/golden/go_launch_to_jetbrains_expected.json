@@ -50,16 +50,16 @@
           "Space": "",
           "Local": ""
         },
-        "Name": "GO_ENV",
-        "Value": "development"
+        "Name": "DEBUG",
+        "Value": "true"
       },
       {
         "XMLName": {
           "Space": "",
           "Local": ""
         },
-        "Name": "DEBUG",
-        "Value": "true"
+        "Name": "GO_ENV",
+        "Value": "development"
       }
     ]
   }

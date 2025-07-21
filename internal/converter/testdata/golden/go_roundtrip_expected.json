@@ -1,17 +1,18 @@
 {
-  "name": "Launch Go File",
+  "name": "Launch Go Package",
   "type": "go",
   "request": "launch",
-  "program": "${workspaceFolder}/cmd/main.go",
+  "program": ".",
   "args": [
     "run",
-    "$PROJECT_DIR$/cmd/main.go",
-    "serve",
-    "--port",
-    "8080"
+    ".",
+    "--verbose",
+    "--output",
+    "result.txt"
   ],
   "cwd": "${workspaceFolder}",
   "env": {
-    "PORT": "8080"
+    "DEBUG": "true",
+    "GO_ENV": "development"
   }
 }

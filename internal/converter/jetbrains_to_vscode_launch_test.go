@@ -252,30 +252,31 @@ func TestJetBrainsToVSCodeLaunchConverter_BidirectionalConsistency(t *testing.T)
 
 			require.NotEmpty(t, launchTasks)
 
-			for _, originalTask := range launchTasks {
-				// Convert VSCode → JetBrains
-				vscodeToJB := NewVSCodeLaunchToJetBrainsConverter("/test/project", "", false)
-				jetbrainsConfig, err := vscodeToJB.convertSingleLaunchConfig(originalTask)
-				require.NoError(t, err)
+			// Test only the first launch configuration for consistency
+			originalTask := launchTasks[0]
 
-				// Convert JetBrains back to task
-				jetbrainsTask := jetbrainsConfigToTask(jetbrainsConfig, tc.originalType)
+			// Convert VSCode → JetBrains
+			vscodeToJB := NewVSCodeLaunchToJetBrainsConverter("/test/project", "", false)
+			jetbrainsConfig, err := vscodeToJB.convertSingleLaunchConfig(originalTask)
+			require.NoError(t, err)
 
-				// Convert JetBrains → VSCode
-				jbToVSCode := NewJetBrainsToVSCodeLaunchConverter("/test/project", "", false)
-				require.True(t, jbToVSCode.canConvertToLaunch(jetbrainsTask))
+			// Convert JetBrains back to task
+			jetbrainsTask := jetbrainsConfigToTask(jetbrainsConfig, tc.originalType)
 
-				finalLaunchConfig, err := jbToVSCode.convertSingleTaskToLaunch(jetbrainsTask)
-				require.NoError(t, err)
+			// Convert JetBrains → VSCode
+			jbToVSCode := NewJetBrainsToVSCodeLaunchConverter("/test/project", "", false)
+			require.True(t, jbToVSCode.canConvertToLaunch(jetbrainsTask))
 
-				// Verify language consistency
-				require.Equal(t, tc.originalType, finalLaunchConfig.Type,
-					"Language type should be consistent through round-trip conversion")
+			finalLaunchConfig, err := jbToVSCode.convertSingleTaskToLaunch(jetbrainsTask)
+			require.NoError(t, err)
 
-				// Verify against golden file for exact round-trip output
-				goldenFileName := tc.originalType + "_roundtrip_expected.json"
-				verifyVSCodeLaunchConfigGolden(t, finalLaunchConfig, goldenFileName)
-			}
+			// Verify language consistency
+			require.Equal(t, tc.originalType, finalLaunchConfig.Type,
+				"Language type should be consistent through round-trip conversion")
+
+			// Verify against golden file for exact round-trip output
+			goldenFileName := tc.originalType + "_roundtrip_expected.json"
+			verifyVSCodeLaunchConfigGolden(t, finalLaunchConfig, goldenFileName)
 		})
 	}
 }

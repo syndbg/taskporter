@@ -1,16 +1,19 @@
 {
-  "name": "Launch TypeScript App",
+  "name": "Launch Node.js App",
   "type": "node",
   "request": "launch",
-  "program": "${workspaceFolder}/dist/app.js",
+  "program": "${workspaceFolder}/src/index.js",
   "args": [
-    "$PROJECT_DIR$/dist/app.js",
-    "${workspaceFolder}/dist/app.js",
-    "--config",
-    "config.json"
+    "$PROJECT_DIR$/src/index.js",
+    "${workspaceFolder}/src/index.js",
+    "--env",
+    "development",
+    "--port",
+    "3000"
   ],
   "cwd": "${workspaceFolder}",
   "env": {
-    "NODE_ENV": "test"
+    "DEBUG": "app:*",
+    "NODE_ENV": "development"
   }
 }

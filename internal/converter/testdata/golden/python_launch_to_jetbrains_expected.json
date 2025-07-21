@@ -42,16 +42,16 @@
           "Space": "",
           "Local": ""
         },
-        "Name": "PYTHONPATH",
-        "Value": "$PROJECT_DIR$/src"
+        "Name": "DEBUG",
+        "Value": "1"
       },
       {
         "XMLName": {
           "Space": "",
           "Local": ""
         },
-        "Name": "DEBUG",
-        "Value": "1"
+        "Name": "PYTHONPATH",
+        "Value": "$PROJECT_DIR$/src"
       }
     ]
   }

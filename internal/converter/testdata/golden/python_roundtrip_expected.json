@@ -1,16 +1,18 @@
 {
-  "name": "Python Django",
+  "name": "Launch Python App",
   "type": "python",
   "request": "launch",
-  "program": "${workspaceFolder}/manage.py",
+  "program": "${workspaceFolder}/src/main.py",
   "args": [
-    "$PROJECT_DIR$/manage.py",
-    "${workspaceFolder}/manage.py",
-    "runserver",
-    "0.0.0.0:8000"
+    "$PROJECT_DIR$/src/main.py",
+    "${workspaceFolder}/src/main.py",
+    "--verbose",
+    "--config",
+    "settings.ini"
   ],
   "cwd": "${workspaceFolder}",
   "env": {
-    "DJANGO_SETTINGS_MODULE": "myproject.settings.development"
+    "DEBUG": "1",
+    "PYTHONPATH": "${workspaceFolder}/src"
   }
 }

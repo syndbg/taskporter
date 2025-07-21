@@ -42,16 +42,16 @@
           "Space": "",
           "Local": ""
         },
-        "Name": "NODE_ENV",
-        "Value": "development"
+        "Name": "DEBUG",
+        "Value": "app:*"
       },
       {
         "XMLName": {
           "Space": "",
           "Local": ""
         },
-        "Name": "DEBUG",
-        "Value": "app:*"
+        "Name": "NODE_ENV",
+        "Value": "development"
       }
     ]
   }

@@ -1,11 +1,15 @@
 {
-  "name": "Java Console App",
+  "name": "Launch Java App",
   "type": "java",
   "request": "launch",
-  "mainClass": "com.example.ConsoleApplication",
+  "mainClass": "com.example.Application",
   "args": [
-    "input.txt",
-    "output.txt"
+    "--spring.profiles.active=dev",
+    "--debug"
   ],
-  "cwd": "${workspaceFolder}"
+  "cwd": "${workspaceFolder}",
+  "env": {
+    "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk",
+    "SPRING_PROFILES_ACTIVE": "development"
+  }
 }
