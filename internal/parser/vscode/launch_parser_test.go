@@ -209,6 +209,37 @@ func TestLaunchParser(t *testing.T) {
 		})
 	})
 
+	t.Run("ParseLaunchConfigs with comments", func(t *testing.T) {
+		t.Run("should parse launch.json with comments", func(t *testing.T) {
+			testDataPath := "testdata/launch_with_comments.json"
+			projectRoot := "/test/project"
+
+			parser := NewLaunchParser(projectRoot)
+			tasks, err := parser.ParseLaunchConfigs(testDataPath)
+
+			require.NoError(t, err)
+			require.Len(t, tasks, 2)
+
+			// Check first configuration
+			launchGoApp := tasks[0]
+			require.Equal(t, "Launch Go App", launchGoApp.Name)
+			require.Equal(t, config.TypeVSCodeLaunch, launchGoApp.Type)
+			require.Equal(t, "go", launchGoApp.Command)
+			require.Contains(t, launchGoApp.Args, "serve")
+			require.Contains(t, launchGoApp.Args, "--port")
+			require.Contains(t, launchGoApp.Args, "8080")
+			require.Equal(t, "true", launchGoApp.Env["DEBUG"])
+			require.Equal(t, "8080", launchGoApp.Env["PORT"])
+
+			// Check second configuration
+			testRunner := tasks[1]
+			require.Equal(t, "Test Runner", testRunner.Name)
+			require.Equal(t, "go", testRunner.Command)
+			require.Contains(t, testRunner.Args, "-v")
+			require.Equal(t, "development", testRunner.Env["TEST_ENV"])
+		})
+	})
+
 	t.Run("resolveWorkspacePath", func(t *testing.T) {
 		projectRoot := "/home/user/project"
 		parser := NewLaunchParser(projectRoot)

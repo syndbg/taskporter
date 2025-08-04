@@ -94,6 +94,49 @@ func TestTasksParser(t *testing.T) {
 		})
 	})
 
+	t.Run("ParseTasks with comments", func(t *testing.T) {
+		t.Run("should parse tasks.json with comments", func(t *testing.T) {
+			testDataPath := "testdata/tasks_with_comments.json"
+			projectRoot := "/test/project"
+
+			parser := NewTasksParser(projectRoot)
+			tasks, err := parser.ParseTasks(testDataPath)
+
+			require.NoError(t, err)
+			require.Len(t, tasks, 3)
+
+			// Check build task
+			buildTask := tasks[0]
+			require.Equal(t, "build", buildTask.Name)
+			require.Equal(t, config.TypeVSCodeTask, buildTask.Type)
+			require.Equal(t, "go", buildTask.Command)
+			require.Contains(t, buildTask.Args, "build")
+			require.Contains(t, buildTask.Args, "-o")
+			require.Contains(t, buildTask.Args, "bin/app")
+			require.Equal(t, "build", buildTask.Group)
+			require.Equal(t, "0", buildTask.Env["CGO_ENABLED"])
+
+			// Check test task
+			testTask := tasks[1]
+			require.Equal(t, "test", testTask.Name)
+			require.Equal(t, "go", testTask.Command)
+			require.Contains(t, testTask.Args, "test")
+			require.Contains(t, testTask.Args, "-v")
+			require.Contains(t, testTask.Args, "./...")
+			require.Equal(t, "test", testTask.Group)
+
+			// Check dev-server task
+			devTask := tasks[2]
+			require.Equal(t, "dev-server", devTask.Name)
+			require.Equal(t, "go", devTask.Command)
+			require.Contains(t, devTask.Args, "run")
+			require.Contains(t, devTask.Args, ".")
+			require.Contains(t, devTask.Args, "--dev")
+			require.Equal(t, "true", devTask.Env["DEBUG"])
+			require.Equal(t, "true", devTask.Env["RELOAD"])
+		})
+	})
+
 	t.Run("convertTask", func(t *testing.T) {
 		projectRoot := "/test/project"
 		parser := NewTasksParser(projectRoot)
