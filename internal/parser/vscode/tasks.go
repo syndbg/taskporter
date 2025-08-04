@@ -1,7 +1,6 @@
 package vscode
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -70,7 +69,7 @@ func (p *TasksParser) ParseTasks(tasksFilePath string) ([]*config.Task, error) {
 	}
 
 	var taskFile VSCodeTaskFile
-	if err := json.Unmarshal(data, &taskFile); err != nil {
+	if err := parseJSONC(data, &taskFile); err != nil {
 		return nil, fmt.Errorf("failed to parse tasks JSON: %w", err)
 	}
 

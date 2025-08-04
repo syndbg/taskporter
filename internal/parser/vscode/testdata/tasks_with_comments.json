@@ -1,0 +1,49 @@
+{
+    // VSCode tasks configuration with comments
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build", // Build the application
+            "type": "shell",
+            "command": "go",
+            "args": ["build", "-o", "bin/app"], /* Output to bin directory */
+            "group": {
+                "kind": "build", // Build group
+                "isDefault": true // Default build task
+            },
+            "options": {
+                "cwd": "${workspaceFolder}", // Working directory
+                "env": {
+                    "CGO_ENABLED": "0" // Disable CGO
+                }
+            }
+        },
+        // Test task with inline comments
+        {
+            "label": "test",
+            "type": "shell", /* Shell task type */
+            "command": "go",
+            "args": ["test", "-v", "./..."], // Run all tests verbosely
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "build" /* Depends on build task */
+        },
+        /* Development server task
+           with multiline comment */
+        {
+            "label": "dev-server",
+            "type": "shell",
+            "command": "go", // Go command
+            "args": ["run", ".", "--dev"], // Development mode
+            "group": "build",
+            "options": {
+                "env": {
+                    "DEBUG": "true", // Debug mode
+                    "RELOAD": "true" /* Auto-reload */
+                }
+            }
+        }
+    ]
+}

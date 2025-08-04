@@ -1,0 +1,32 @@
+{
+    // VSCode launch configuration with comments
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Go App", // Main launch config
+            "type": "go",
+            "request": "launch",
+            "mode": "debug", /* Debug mode for development */
+            "program": "${workspaceFolder}",
+            "args": ["serve", "--port", "8080"], // Command line arguments
+            "env": {
+                "DEBUG": "true", // Enable debug logging
+                "PORT": "8080"
+            },
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build" /* Build before launching */
+        },
+        // Another configuration for testing
+        {
+            "name": "Test Runner",
+            "type": "go",
+            "request": "launch",
+            "mode": "test", // Test mode
+            "program": "${workspaceFolder}/tests",
+            "args": ["-v"], /* Verbose output */
+            "env": {
+                "TEST_ENV": "development" // Test environment
+            }
+        }
+    ]
+}

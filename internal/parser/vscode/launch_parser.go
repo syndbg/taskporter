@@ -1,7 +1,6 @@
 package vscode
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -30,7 +29,7 @@ func (p *LaunchParser) ParseLaunchConfigs(launchFilePath string) ([]*config.Task
 	}
 
 	var launchFile VSCodeLaunchFile
-	if err := json.Unmarshal(data, &launchFile); err != nil {
+	if err := parseJSONC(data, &launchFile); err != nil {
 		return nil, fmt.Errorf("failed to parse launch JSON: %w", err)
 	}
 
@@ -135,7 +134,7 @@ func (p *LaunchParser) GetPreLaunchTask(launchFilePath string, configName string
 	}
 
 	var launchFile VSCodeLaunchFile
-	if err := json.Unmarshal(data, &launchFile); err != nil {
+	if err := parseJSONC(data, &launchFile); err != nil {
 		return "", fmt.Errorf("failed to parse launch JSON: %w", err)
 	}
 
