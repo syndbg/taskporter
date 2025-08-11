@@ -13,3 +13,10 @@ linters:
       allow-first-in-block: true
       allow-whole-block: false
       branch-max-lines: 2
+  exclusions:
+    rules:
+      - linters:
+          - errcheck
+        source: "^\\s*defer\\s+"
+
+

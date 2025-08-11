@@ -169,9 +169,8 @@ func TestTasksParser(t *testing.T) {
 			require.Equal(t, "/test/tasks.json", task.Source)
 		})
 
-		t.Run("workspace path resolution", func(t *testing.T) {
-			expectedCwd := filepath.Join(projectRoot, "subdir")
-			require.Equal(t, expectedCwd, task.Cwd)
+		t.Run("workspace variable preservation", func(t *testing.T) {
+			require.Equal(t, "${workspaceFolder}/subdir", task.Cwd)
 		})
 
 		t.Run("environment variables", func(t *testing.T) {
@@ -223,7 +222,7 @@ func TestTasksParser(t *testing.T) {
 		}
 	})
 
-	t.Run("resolveWorkspacePath", func(t *testing.T) {
+	t.Run("workspace variable resolution", func(t *testing.T) {
 		projectRoot := "/home/user/project"
 		parser := NewTasksParser(projectRoot)
 
@@ -243,20 +242,25 @@ func TestTasksParser(t *testing.T) {
 				expected: "/home/user/project/build",
 			},
 			{
-				name:     "relative path",
+				name:     "relative path with separators becomes absolute",
 				path:     "relative/path",
 				expected: "/home/user/project/relative/path",
 			},
 			{
-				name:     "absolute path",
+				name:     "absolute path unchanged",
 				path:     "/absolute/path",
 				expected: "/absolute/path",
+			},
+			{
+				name:     "plain relative path becomes absolute",
+				path:     "build.sh",
+				expected: "/home/user/project/build.sh",
 			},
 		}
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				result := parser.resolveWorkspacePath(tt.path)
+				result := parser.workspaceResolver.ResolvePathVariables(tt.path)
 				require.Equal(t, tt.expected, result)
 			})
 		}
