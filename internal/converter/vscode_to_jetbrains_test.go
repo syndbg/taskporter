@@ -344,10 +344,10 @@ func validateJavaCompileXML(t *testing.T, filename string) {
 	require.Contains(t, scriptOption.Value, "javac")
 	require.Contains(t, scriptOption.Value, "Main.java")
 
-	// Check working directory (VSCode parser resolves ${workspaceFolder} to absolute path)
+	// Check working directory (converter should convert VSCode variables to JetBrains format)
 	workingDirOption := findOption(config.Options, "WORKING_DIRECTORY")
 	require.NotNil(t, workingDirOption)
-	require.Equal(t, "/test/project", workingDirOption.Value)
+	require.Equal(t, "$PROJECT_DIR$", workingDirOption.Value)
 
 	// Check environment variables
 	require.NotNil(t, config.EnvVars)
@@ -371,10 +371,10 @@ func validateJavaRunXML(t *testing.T, filename string) {
 	require.Equal(t, "run-java-app", config.Name)
 	require.Equal(t, "Application", config.Type) // java command should be detected as Application
 
-	// Check working directory conversion (VSCode parser resolves ${workspaceFolder} to absolute path)
+	// Check working directory conversion (converter should convert VSCode variables to JetBrains format)
 	workingDirOption := findOption(config.Options, "WORKING_DIRECTORY")
 	require.NotNil(t, workingDirOption)
-	require.Equal(t, "/test/project/build", workingDirOption.Value)
+	require.Equal(t, "$PROJECT_DIR$/build", workingDirOption.Value)
 }
 
 func validateGradleXML(t *testing.T, filename string, expectedTaskName string) {
@@ -413,10 +413,10 @@ func validateNodeJSXML(t *testing.T, filename string) {
 	require.Contains(t, scriptOption.Value, "node server.js")
 	require.Contains(t, scriptOption.Value, "--port 8080")
 
-	// Check working directory (VSCode parser resolves ${workspaceFolder} to absolute path)
+	// Check working directory (converter should convert VSCode variables to JetBrains format)
 	workingDirOption := findOption(config.Options, "WORKING_DIRECTORY")
 	require.NotNil(t, workingDirOption)
-	require.Equal(t, "/test/project/src", workingDirOption.Value)
+	require.Equal(t, "$PROJECT_DIR$/src", workingDirOption.Value)
 }
 
 func validatePythonXML(t *testing.T, filename string) {
@@ -501,10 +501,10 @@ func validateComplexGradleXML(t *testing.T, filename string) {
 	require.NotNil(t, gradleOptsEnv)
 	require.Contains(t, gradleOptsEnv.Value, "-Xmx4g")
 
-	// Check working directory is converted
+	// Check working directory is converted to JetBrains format
 	workingDirOption := findOption(config.Options, "WORKING_DIRECTORY")
 	require.NotNil(t, workingDirOption)
-	require.Equal(t, "/test/project/subproject", workingDirOption.Value)
+	require.Equal(t, "$PROJECT_DIR$/subproject", workingDirOption.Value)
 }
 
 // Helper functions to find options and environment variables

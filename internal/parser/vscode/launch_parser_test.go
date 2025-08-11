@@ -128,11 +128,11 @@ func TestLaunchParser(t *testing.T) {
 			require.Equal(t, config.TypeVSCodeLaunch, task.Type)
 			require.Equal(t, "go", task.Command)
 			require.Contains(t, task.Args, "run")
-			require.Contains(t, task.Args, projectRoot)
+			require.Contains(t, task.Args, "${workspaceFolder}")
 			require.Contains(t, task.Args, "--flag")
 			require.Contains(t, task.Args, "value")
 			require.Equal(t, "launch", task.Group)
-			require.Equal(t, filepath.Join(projectRoot, "subdir"), task.Cwd)
+			require.Equal(t, "${workspaceFolder}/subdir", task.Cwd)
 			require.Equal(t, "test", task.Env["GO_ENV"])
 		})
 
@@ -153,7 +153,7 @@ func TestLaunchParser(t *testing.T) {
 
 			require.Equal(t, "test-node-launch", task.Name)
 			require.Equal(t, "node", task.Command)
-			require.Equal(t, filepath.Join(projectRoot, "app.js"), task.Args[0])
+			require.Equal(t, "${workspaceFolder}/app.js", task.Args[0])
 			require.Contains(t, task.Args, "--port")
 			require.Contains(t, task.Args, "8080")
 			require.Equal(t, "development", task.Env["NODE_ENV"])
@@ -176,10 +176,10 @@ func TestLaunchParser(t *testing.T) {
 
 			require.Equal(t, "test-python-launch", task.Name)
 			require.Equal(t, "python", task.Command)
-			require.Equal(t, filepath.Join(projectRoot, "script.py"), task.Args[0])
+			require.Equal(t, "${workspaceFolder}/script.py", task.Args[0])
 			require.Contains(t, task.Args, "--input")
 			require.Contains(t, task.Args, "data.csv")
-			require.Equal(t, projectRoot, task.Env["PYTHONPATH"])
+			require.Equal(t, "${workspaceFolder}", task.Env["PYTHONPATH"])
 		})
 
 		t.Run("unsupported launch type", func(t *testing.T) {
@@ -240,7 +240,7 @@ func TestLaunchParser(t *testing.T) {
 		})
 	})
 
-	t.Run("resolveWorkspacePath", func(t *testing.T) {
+	t.Run("workspace variable resolution", func(t *testing.T) {
 		projectRoot := "/home/user/project"
 		parser := NewLaunchParser(projectRoot)
 
@@ -260,20 +260,25 @@ func TestLaunchParser(t *testing.T) {
 				expected: "/home/user/project/app.js",
 			},
 			{
-				name:     "relative path",
-				path:     "scripts/build.py",
-				expected: "/home/user/project/scripts/build.py",
+				name:     "relative path with variables becomes absolute",
+				path:     "${workspaceFolder}/../scripts/build.py",
+				expected: "/home/user/project/../scripts/build.py",
 			},
 			{
-				name:     "absolute path",
+				name:     "absolute path unchanged",
 				path:     "/usr/bin/python",
 				expected: "/usr/bin/python",
+			},
+			{
+				name:     "plain relative path becomes absolute",
+				path:     "scripts/build.py",
+				expected: "/home/user/project/scripts/build.py",
 			},
 		}
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				result := parser.resolveWorkspacePath(tt.path)
+				result := parser.workspaceResolver.ResolvePathVariables(tt.path)
 				require.Equal(t, tt.expected, result)
 			})
 		}

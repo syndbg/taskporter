@@ -3,8 +3,6 @@ package vscode
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/syndbg/taskporter/internal/config"
 )
@@ -51,13 +49,15 @@ type VSCodeTaskGroup struct {
 
 // TasksParser handles parsing of VSCode tasks.json files
 type TasksParser struct {
-	projectRoot string
+	projectRoot       string
+	workspaceResolver *WorkspaceResolver
 }
 
 // NewTasksParser creates a new VSCode tasks parser
 func NewTasksParser(projectRoot string) *TasksParser {
 	return &TasksParser{
-		projectRoot: projectRoot,
+		projectRoot:       projectRoot,
+		workspaceResolver: NewWorkspaceResolver(projectRoot),
 	}
 }
 
@@ -103,10 +103,10 @@ func (p *TasksParser) convertTask(vscodeTask VSCodeTask, sourceFile string) (*co
 	// Handle group information
 	task.Group = p.parseGroup(vscodeTask.Group)
 
-	// Handle options (cwd and env)
+	// Handle options (cwd and env) - preserve variables for conversion scenarios
 	if vscodeTask.Options != nil {
 		if vscodeTask.Options.Cwd != "" {
-			task.Cwd = p.resolveWorkspacePath(vscodeTask.Options.Cwd)
+			task.Cwd = vscodeTask.Options.Cwd
 		}
 
 		if vscodeTask.Options.Env != nil {
@@ -141,18 +141,4 @@ func (p *TasksParser) parseGroup(group interface{}) string {
 	}
 
 	return ""
-}
-
-// resolveWorkspacePath resolves VSCode workspace variables in paths
-func (p *TasksParser) resolveWorkspacePath(path string) string {
-	// Replace common VSCode variables
-	resolved := strings.ReplaceAll(path, "${workspaceFolder}", p.projectRoot)
-	resolved = strings.ReplaceAll(resolved, "${workspaceRoot}", p.projectRoot)
-
-	// Handle relative paths
-	if !filepath.IsAbs(resolved) {
-		resolved = filepath.Join(p.projectRoot, resolved)
-	}
-
-	return resolved
 }

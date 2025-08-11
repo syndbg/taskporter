@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/syndbg/taskporter/internal/config"
+	"github.com/syndbg/taskporter/internal/parser/vscode"
 	"github.com/syndbg/taskporter/internal/security"
 )
 
@@ -15,14 +16,21 @@ type TaskRunner struct {
 	verbose      bool
 	paranoidMode bool
 	sanitizer    *security.Sanitizer
+	projectRoot  string
 }
 
 // NewTaskRunner creates a new task runner
 func NewTaskRunner(verbose bool) *TaskRunner {
+	projectRoot := "."
+	if cwd, err := os.Getwd(); err == nil {
+		projectRoot = cwd
+	}
+
 	return &TaskRunner{
 		verbose:      verbose,
-		paranoidMode: false,                      // Default: trust user configurations
-		sanitizer:    security.NewSanitizer("."), // Will be updated with proper project root
+		paranoidMode: false, // Default: trust user configurations
+		sanitizer:    security.NewSanitizer(projectRoot),
+		projectRoot:  projectRoot,
 	}
 }
 
@@ -32,6 +40,7 @@ func NewTaskRunnerWithProjectRoot(verbose bool, projectRoot string) *TaskRunner 
 		verbose:      verbose,
 		paranoidMode: false, // Default: trust user configurations
 		sanitizer:    security.NewSanitizer(projectRoot),
+		projectRoot:  projectRoot,
 	}
 }
 
@@ -41,11 +50,50 @@ func NewTaskRunnerWithOptions(verbose bool, projectRoot string, paranoidMode boo
 		verbose:      verbose,
 		paranoidMode: paranoidMode,
 		sanitizer:    security.NewSanitizer(projectRoot),
+		projectRoot:  projectRoot,
 	}
 }
 
 // RunTask executes a given task with proper environment and working directory setup
 func (tr *TaskRunner) RunTask(task *config.Task) error {
+	// Resolve workspace variables for execution if this is a VSCode task
+	resolvedTask := tr.resolveTaskVariables(task)
+
+	return tr.runResolvedTask(resolvedTask)
+}
+
+// resolveTaskVariables resolves VSCode workspace variables in a task for execution
+func (tr *TaskRunner) resolveTaskVariables(task *config.Task) *config.Task {
+	// Only resolve VSCode tasks that might contain variables
+	if task.Type != config.TypeVSCodeTask && task.Type != config.TypeVSCodeLaunch {
+		return task
+	}
+
+	// Use the project root from the task runner
+	resolver := vscode.NewWorkspaceResolver(tr.projectRoot)
+
+	// Create a copy of the task with resolved variables
+	resolvedTask := &config.Task{
+		Name:        task.Name,
+		Type:        task.Type,
+		Command:     resolver.ResolveVariables(task.Command),
+		Args:        resolver.ResolveStringSlice(task.Args),
+		Cwd:         resolver.ResolvePathVariables(task.Cwd),
+		Description: task.Description,
+		Source:      task.Source,
+		Group:       task.Group,
+	}
+
+	// Resolve environment variables
+	if task.Env != nil {
+		resolvedTask.Env = resolver.ResolveStringMap(task.Env)
+	}
+
+	return resolvedTask
+}
+
+// runResolvedTask executes a task with already resolved variables
+func (tr *TaskRunner) runResolvedTask(task *config.Task) error {
 	if tr.verbose {
 		fmt.Printf("🚀 Executing task: %s\n", task.Name)
 		fmt.Printf("📋 Type: %s\n", task.Type)

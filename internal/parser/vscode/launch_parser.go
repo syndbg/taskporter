@@ -3,21 +3,21 @@ package vscode
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/syndbg/taskporter/internal/config"
 )
 
 // LaunchParser handles parsing of VSCode launch.json files
 type LaunchParser struct {
-	projectRoot string
+	projectRoot       string
+	workspaceResolver *WorkspaceResolver
 }
 
 // NewLaunchParser creates a new VSCode launch parser
 func NewLaunchParser(projectRoot string) *LaunchParser {
 	return &LaunchParser{
-		projectRoot: projectRoot,
+		projectRoot:       projectRoot,
+		workspaceResolver: NewWorkspaceResolver(projectRoot),
 	}
 }
 
@@ -76,9 +76,9 @@ func (p *LaunchParser) convertLaunchConfig(vscodeConfig VSCodeLaunchConfig, sour
 		return nil, fmt.Errorf("unsupported launch type: %s", vscodeConfig.Type)
 	}
 
-	// Handle common properties
+	// Handle common properties - preserve variables for conversion scenarios
 	if vscodeConfig.Cwd != "" {
-		task.Cwd = p.resolveWorkspacePath(vscodeConfig.Cwd)
+		task.Cwd = vscodeConfig.Cwd
 	}
 
 	// Set default working directory to project root if not specified
@@ -86,16 +86,11 @@ func (p *LaunchParser) convertLaunchConfig(vscodeConfig VSCodeLaunchConfig, sour
 		task.Cwd = p.projectRoot
 	}
 
-	// Handle environment variables
+	// Handle environment variables - preserve variables for conversion scenarios
 	if vscodeConfig.Env != nil {
 		task.Env = make(map[string]string)
 		for k, v := range vscodeConfig.Env {
-			// Only resolve workspace variables, leave other values as-is
-			if strings.Contains(v, "${workspace") {
-				task.Env[k] = p.resolveWorkspacePath(v)
-			} else {
-				task.Env[k] = v
-			}
+			task.Env[k] = v
 		}
 	}
 
@@ -110,20 +105,6 @@ func (p *LaunchParser) convertLaunchConfig(vscodeConfig VSCodeLaunchConfig, sour
 	}
 
 	return task, nil
-}
-
-// resolveWorkspacePath resolves VSCode workspace variables in paths
-func (p *LaunchParser) resolveWorkspacePath(path string) string {
-	// Replace common VSCode variables
-	resolved := strings.ReplaceAll(path, "${workspaceFolder}", p.projectRoot)
-	resolved = strings.ReplaceAll(resolved, "${workspaceRoot}", p.projectRoot)
-
-	// Handle relative paths
-	if !filepath.IsAbs(resolved) {
-		resolved = filepath.Join(p.projectRoot, resolved)
-	}
-
-	return resolved
 }
 
 // GetPreLaunchTask returns the preLaunchTask name if specified
@@ -159,15 +140,14 @@ func (p *LaunchParser) handleGoLaunchConfig(vscodeConfig VSCodeLaunchConfig, tas
 			task.Args = []string{"run"}
 		}
 
-		// Add program path
+		// Add program path - preserve variables for conversion scenarios
 		if vscodeConfig.Program != "" {
-			programPath := p.resolveWorkspacePath(vscodeConfig.Program)
-			task.Args = append(task.Args, programPath)
+			task.Args = append(task.Args, vscodeConfig.Program)
 		} else {
 			task.Args = append(task.Args, ".")
 		}
 
-		// Add arguments
+		// Add arguments - preserve variables for conversion scenarios
 		if len(vscodeConfig.Args) > 0 {
 			task.Args = append(task.Args, vscodeConfig.Args...)
 		}
@@ -188,15 +168,14 @@ func (p *LaunchParser) handleNodeLaunchConfig(vscodeConfig VSCodeLaunchConfig, t
 	case "launch":
 		task.Command = "node"
 
-		// Add program path
+		// Add program path - preserve variables for conversion scenarios
 		if vscodeConfig.Program != "" {
-			programPath := p.resolveWorkspacePath(vscodeConfig.Program)
-			task.Args = []string{programPath}
+			task.Args = []string{vscodeConfig.Program}
 		} else {
 			return fmt.Errorf("node.js launch config requires program path")
 		}
 
-		// Add arguments
+		// Add arguments - preserve variables for conversion scenarios
 		if len(vscodeConfig.Args) > 0 {
 			task.Args = append(task.Args, vscodeConfig.Args...)
 		}
@@ -217,15 +196,14 @@ func (p *LaunchParser) handlePythonLaunchConfig(vscodeConfig VSCodeLaunchConfig,
 	case "launch":
 		task.Command = "python"
 
-		// Add program path
+		// Add program path - preserve variables for conversion scenarios
 		if vscodeConfig.Program != "" {
-			programPath := p.resolveWorkspacePath(vscodeConfig.Program)
-			task.Args = []string{programPath}
+			task.Args = []string{vscodeConfig.Program}
 		} else {
 			return fmt.Errorf("python launch config requires program path")
 		}
 
-		// Add arguments
+		// Add arguments - preserve variables for conversion scenarios
 		if len(vscodeConfig.Args) > 0 {
 			task.Args = append(task.Args, vscodeConfig.Args...)
 		}
